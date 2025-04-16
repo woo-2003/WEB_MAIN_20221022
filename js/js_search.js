@@ -21,13 +21,7 @@ alert("검색을 수행합니다!");
       return false;
     }
 
-      // const search_message = () => {
-  // const c = '검색을 수행합니다';
-  // alert(c);
-  // };
-  
-    
-    // 비속어 검사
+      // 비속어 검사
     const badWords = ["비속어1", "비속어2", "비속어3", "비속어4", "비속어5"];
     
     for (let i = 0; i < badWords.length; i++) {
@@ -42,5 +36,3 @@ alert("검색을 수행합니다!");
     window.open(googleSearchUrl, "_blank");
     return false;
   }
-
-  
