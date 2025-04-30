@@ -1,0 +1,1976 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>엔트로피와 정보 이득 학습</title>
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+        <style>
+            :root {
+                --primary: #3182F6;
+                --primary-light: #E7F0FF;
+                --secondary: #0D9D8E;
+                --secondary-light: #E6F7F5;
+                --game: #6C5CE7;
+                --game-light: #F3F0FF;
+                --medical: #E84D8A;
+                --medical-light: #FEE9F2;
+                --house: #F6A623;
+                --house-light: #FFF5E6;
+                --success: #16CC74;
+                --success-light: #E7FBF1;
+                --warning: #F6A623;
+                --warning-light: #FFF5E6;
+                --dark: #191F28;
+                --gray-dark: #4E5968;
+                --gray: #8B95A1;
+                --gray-light: #D1D6DB;
+                --gray-lighter: #F2F4F6;
+                --white: #FFFFFF;
+                --border-radius-sm: 8px;
+                --border-radius-md: 12px;
+                --border-radius-lg: 16px;
+                --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+                --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+                --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+            }
+
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                line-height: 1.6;
+                background-color: #f8f9fb;
+                color: var(--dark);
+                padding: 24px;
+                -webkit-font-smoothing: antialiased;
+            }
+
+            .container {
+                max-width: 850px;
+                margin: 0 auto;
+                padding: 24px;
+            }
+
+            header {
+                text-align: center;
+                margin-bottom: 40px;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+                font-weight: 700;
+                color: var(--dark);
+                margin-bottom: 16px;
+            }
+
+            .intro {
+                background-color: var(--primary-light);
+                border-radius: var(--border-radius-lg);
+                padding: 24px;
+                margin-bottom: 32px;
+                box-shadow: var(--shadow-sm);
+                border-left: 4px solid var(--primary);
+            }
+
+            .intro p {
+                margin-bottom: 16px;
+                color: var(--gray-dark);
+                font-size: 1rem;
+            }
+
+            .intro p:last-child {
+                margin-bottom: 0;
+            }
+
+            .formula {
+                font-family: 'Consolas', monospace;
+                background-color: var(--gray-lighter);
+                border-radius: var(--border-radius-sm);
+                padding: 16px;
+                margin: 16px 0;
+                font-size: 0.95rem;
+                line-height: 1.5;
+                overflow-x: auto;
+                color: var(--dark);
+            }
+
+            .question-container {
+                margin-bottom: 40px;
+                border-radius: var(--border-radius-lg);
+                overflow: hidden;
+                background-color: var(--white);
+                box-shadow: var(--shadow-md);
+                transition: transform 0.2s ease;
+            }
+
+            .question-container:hover {
+                transform: translateY(-4px);
+                box-shadow: var(--shadow-lg);
+            }
+
+            .question-header {
+                background-color: var(--primary);
+                color: var(--white);
+                padding: 20px 24px;
+                border-top-left-radius: var(--border-radius-lg);
+                border-top-right-radius: var(--border-radius-lg);
+            }
+
+            .question-header h2 {
+                font-size: 1.4rem;
+                font-weight: 700;
+                margin: 0;
+            }
+
+            .question-body {
+                padding: 24px;
+            }
+
+            .question-body p {
+                margin-bottom: 16px;
+                color: var(--gray-dark);
+            }
+
+            .data-table-container {
+                overflow-x: auto;
+                margin: 24px 0;
+                border-radius: var(--border-radius-md);
+                box-shadow: var(--shadow-sm);
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 0.9rem;
+                background-color: var(--white);
+            }
+
+            th, td {
+                padding: 12px 16px;
+                text-align: center;
+                border-bottom: 1px solid var(--gray-lighter);
+            }
+
+            th {
+                background-color: var(--gray-lighter);
+                color: var(--gray-dark);
+                font-weight: 500;
+                white-space: nowrap;
+            }
+
+            tr:last-child td {
+                border-bottom: none;
+            }
+
+            tr:hover {
+                background-color: rgba(49, 130, 246, 0.04);
+            }
+
+            .question-list {
+                margin: 24px 0;
+                padding-left: 20px;
+            }
+
+            .question-list p {
+                margin-bottom: 12px;
+                font-weight: 500;
+                color: var(--dark);
+            }
+
+            .btn-container {
+                display: flex;
+                justify-content: center;
+                margin-top: 32px;
+            }
+
+            .btn {
+                background-color: var(--primary);
+                color: var(--white);
+                border: none;
+                border-radius: 100px;
+                padding: 12px 24px;
+                font-size: 1rem;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: var(--shadow-sm);
+                min-width: 120px;
+            }
+
+            .btn:hover {
+                background-color: #2272f2;
+                box-shadow: var(--shadow-md);
+                transform: translateY(-2px);
+            }
+
+            .btn:active {
+                transform: translateY(0);
+                box-shadow: var(--shadow-sm);
+            }
+
+            .answer {
+                background-color: var(--success-light);
+                border-radius: var(--border-radius-lg);
+                margin-top: 24px;
+                padding: 0;
+                overflow: hidden;
+                display: none;
+                box-shadow: var(--shadow-sm);
+                border-left: 4px solid var(--success);
+                transition: all 0.3s ease;
+                opacity: 0;
+                max-height: 0;
+            }
+
+            .answer.visible {
+                opacity: 1;
+                max-height: 9999px;
+            }
+
+            .answer-header {
+                background-color: var(--success);
+                color: var(--white);
+                padding: 16px 24px;
+            }
+
+            .answer-header h3 {
+                font-size: 1.2rem;
+                font-weight: 500;
+                margin: 0;
+            }
+
+            .answer-body {
+                padding: 24px;
+            }
+
+            .step {
+                margin-bottom: 24px;
+                padding-left: 24px;
+                border-left: 2px solid var(--success);
+            }
+
+            .step:last-child {
+                margin-bottom: 0;
+            }
+
+            .step h4 {
+                color: var(--dark);
+                font-size: 1.1rem;
+                margin-bottom: 12px;
+            }
+
+            .step p {
+                color: var(--gray-dark);
+                margin-bottom: 12px;
+            }
+
+            .highlight {
+                background-color: var(--warning-light);
+                color: var(--dark);
+                padding: 2px 6px;
+                border-radius: var(--border-radius-sm);
+                font-weight: 500;
+            }
+
+            ul, ol {
+                margin: 16px 0;
+                padding-left: 24px;
+            }
+
+            li {
+                margin-bottom: 8px;
+                color: var(--gray-dark);
+            }
+
+            .badge {
+                display: inline-block;
+                padding: 4px 12px;
+                border-radius: 100px;
+                font-size: 0.8rem;
+                font-weight: 500;
+                margin-right: 8px;
+            }
+
+            .badge-primary {
+                background-color: var(--primary-light);
+                color: var(--primary);
+            }
+
+            .badge-success {
+                background-color: var(--success-light);
+                color: var(--success);
+            }
+
+            .badge-warning {
+                background-color: var(--warning-light);
+                color: var(--warning);
+            }
+
+            .progress-indicator {
+                display: flex;
+                justify-content: space-between;
+                margin: 40px 0;
+            }
+
+            .progress-step {
+                flex: 1;
+                text-align: center;
+                position: relative;
+            }
+
+            .progress-step::before {
+                content: "";
+                position: absolute;
+                top: 12px;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background-color: var(--gray-light);
+                z-index: 0;
+            }
+
+            .progress-step:first-child::before {
+                left: 50%;
+            }
+
+            .progress-step:last-child::before {
+                right: 50%;
+            }
+
+            .progress-step-number {
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                background-color: var(--gray-light);
+                color: var(--white);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto;
+                position: relative;
+                z-index: 1;
+                font-size: 0.8rem;
+                font-weight: 500;
+            }
+
+            .progress-step.active .progress-step-number {
+                background-color: var(--primary);
+            }
+
+            .progress-step-label {
+                margin-top: 8px;
+                font-size: 0.8rem;
+                color: var(--gray);
+            }
+
+            .progress-step.active .progress-step-label {
+                color: var(--primary);
+                font-weight: 500;
+            }
+
+            @media (max-width: 768px) {
+                body {
+                    padding: 16px 8px;
+                }
+
+                .container {
+                    padding: 16px 8px;
+                }
+
+                h1 {
+                    font-size: 1.8rem;
+                }
+
+                .question-header h2 {
+                    font-size: 1.2rem;
+                }
+
+                .question-body, .answer-body {
+                    padding: 16px;
+                }
+
+                .data-table-container {
+                    margin: 16px -16px;
+                    width: calc(100% + 32px);
+                    border-radius: 0;
+                }
+
+                table {
+                    font-size: 0.8rem;
+                }
+
+                th, td {
+                    padding: 10px 12px;
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="container">
+            <header>
+                <h1>엔트로피와 정보 이득 학습</h1>
+                <p>결정 트리의 핵심 개념을 이해하고 실전 문제를 풀어보세요</p>
+            </header>
+
+            <div class="intro">
+                <p>이 학습 자료는 결정 트리에서 중요한 개념인 <strong>엔트로피(Entropy)</strong>와 <strong>정보 이득(Information Gain)</strong>에 대한 이해를 돕기 위해 구성되었습니다. 아래 문제들을 통해 실제 데이터에 엔트로피와 정보 이득을 계산하고 결정 트리의 분기점을 결정하는 과정을 익힐 수 있습니다.</p>
+                <div class="formula">
+                    <div>📊 <strong>엔트로피 공식:</strong> Entropy(S) = -Σ(p<sub>i</sub> × log<sub>2</sub>p<sub>i</sub>)</div>
+                    <div>🔍 <strong>정보 이득 공식:</strong> Gain(S, A) = Entropy(S) - Σ((|S<sub>v</sub>|/|S|) × Entropy(S<sub>v</sub>))</div>
+                </div>
+            </div>
+
+            <div class="progress-indicator">
+                <div class="progress-step active" data-step="1">
+                    <div class="progress-step-number">1</div>
+                    <div class="progress-step-label">날씨 예측</div>
+                </div>
+                <div class="progress-step" data-step="2">
+                    <div class="progress-step-number">2</div>
+                    <div class="progress-step-label">쇼핑 행동</div>
+                </div>
+                <div class="progress-step" data-step="3">
+                    <div class="progress-step-number">3</div>
+                    <div class="progress-step-label">게임 승리</div>
+                </div>
+                <div class="progress-step" data-step="4">
+                    <div class="progress-step-number">4</div>
+                    <div class="progress-step-label">의료 진단</div>
+                </div>
+                <div class="progress-step" data-step="5">
+                    <div class="progress-step-number">5</div>
+                    <div class="progress-step-label">주택 가격</div>
+                </div>
+            </div>
+
+            <!-- 문제 1: 날씨와 피크닉 결정 -->
+            <div class="question-container" id="question1">
+                <div class="question-header">
+                    <h2>문제 1: 날씨와 피크닉 결정</h2>
+                </div>
+                <div class="question-body">
+                    <p>아래는 14일 동안의 날씨 데이터와 그에 따른 피크닉 진행 여부 기록입니다. 이 데이터를 바탕으로 결정 트리의 첫 번째 분할에 가장 적합한 속성을 찾아보세요.</p>
+                    
+                    <div class="data-table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>날짜</th>
+                                    <th>전망</th>
+                                    <th>온도</th>
+                                    <th>습도</th>
+                                    <th>바람</th>
+                                    <th>피크닉</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1일</td>
+                                    <td>맑음</td>
+                                    <td>높음</td>
+                                    <td>높음</td>
+                                    <td>약함</td>
+                                    <td><span class="badge badge-warning">아니오</span></td>
+                                </tr>
+                                <tr>
+                                    <td>2일</td>
+                                    <td>맑음</td>
+                                    <td>높음</td>
+                                    <td>높음</td>
+                                    <td>강함</td>
+                                    <td><span class="badge badge-warning">아니오</span></td>
+                                </tr>
+                                <tr>
+                                    <td>3일</td>
+                                    <td>구름</td>
+                                    <td>높음</td>
+                                    <td>높음</td>
+                                    <td>약함</td>
+                                    <td><span class="badge badge-success">예</span></td>
+                                </tr>
+                                <tr>
+                                    <td>4일</td>
+                                    <td>비</td>
+                                    <td>보통</td>
+                                    <td>높음</td>
+                                    <td>약함</td>
+                                    <td><span class="badge badge-success">예</span></td>
+                                </tr>
+                                <tr>
+                                    <td>5일</td>
+                                    <td>비</td>
+                                    <td>낮음</td>
+                                    <td>보통</td>
+                                    <td>약함</td>
+                                    <td><span class="badge badge-success">예</span></td>
+                                </tr>
+                                <tr>
+                                    <td>6일</td>
+                                    <td>비</td>
+                                    <td>낮음</td>
+                                    <td>보통</td>
+                                    <td>강함</td>
+                                    <td><span class="badge badge-warning">아니오</span></td>
+                                </tr>
+                                <tr>
+                                    <td>7일</td>
+                                    <td>구름</td>
+                                    <td>낮음</td>
+                                    <td>보통</td>
+                                    <td>강함</td>
+                                    <td><span class="badge badge-success">예</span></td>
+                                </tr>
+                                <tr>
+                                    <td>8일</td>
+                                    <td>맑음</td>
+                                    <td>보통</td>
+                                    <td>높음</td>
+                                    <td>약함</td>
+                                    <td><span class="badge badge-warning">아니오</span></td>
+                                </tr>
+                                <tr>
+                                    <td>9일</td>
+                                    <td>맑음</td>
+                                    <td>낮음</td>
+                                    <td>보통</td>
+                                    <td>약함</td>
+                                    <td><span class="badge badge-success">예</span></td>
+                                </tr>
+                                <tr>
+                                    <td>10일</td>
+                                    <td>비</td>
+                                    <td>보통</td>
+                                    <td>보통</td>
+                                    <td>약함</td>
+                                    <td><span class="badge badge-success">예</span></td>
+                                </tr>
+                                <tr>
+                                    <td>11일</td>
+                                    <td>맑음</td>
+                                    <td>보통</td>
+                                    <td>보통</td>
+                                    <td>강함</td>
+                                    <td><span class="badge badge-success">예</span></td>
+                                </tr>
+                                <tr>
+                                    <td>12일</td>
+                                    <td>구름</td>
+                                    <td>보통</td>
+                                    <td>높음</td>
+                                    <td>강함</td>
+                                    <td><span class="badge badge-success">예</span></td>
+                                </tr>
+                                <tr>
+                                    <td>13일</td>
+                                    <td>구름</td>
+                                    <td>높음</td>
+                                    <td>보통</td>
+                                    <td>약함</td>
+                                    <td><span class="badge badge-success">예</span></td>
+                                </tr>
+                                <tr>
+                                    <td>14일</td>
+                                    <td>비</td>
+                                    <td>보통</td>
+                                    <td>높음</td>
+                                    <td>강함</td>
+                                    <td><span class="badge badge-warning">아니오</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="question-list">
+                        <p>1. 전체 데이터 집합의 엔트로피를 계산하세요.</p>
+                        <p>2. 각 속성(전망, 온도, 습도, 바람)에 대한 정보 이득을 계산하세요.</p>
+                        <p>3. 계산된 정보 이득을 바탕으로 결정 트리의 첫 번째 분할에 가장 적합한 속성은 무엇인가요?</p>
+                    </div>
+                    
+                    <div class="btn-container">
+                        <button class="btn" onclick="toggleAnswer(this)">답안 보기</button>
+                    </div>
+                    
+                    <div class="answer" id="answer1">
+                        <div class="answer-header">
+                            <h3>답안 및 해설</h3>
+                        </div>
+                        <div class="answer-body">
+                            <div class="step">
+                                <h4>1. 전체 데이터 집합의 엔트로피 계산</h4>
+                                <p>전체 14개의 데이터에서 '피크닉=예'는 9개, '피크닉=아니오'는 5개입니다.</p>
+                                <p>P(예) = 9/14 = 0.643, P(아니오) = 5/14 = 0.357</p>
+                                <div class="formula">
+                                    Entropy(S) = -0.643 × log₂(0.643) - 0.357 × log₂(0.357)<br>
+                                    Entropy(S) = -0.643 × (-0.637) - 0.357 × (-1.486)<br>
+                                    Entropy(S) = 0.409 + 0.531<br>
+                                    Entropy(S) = 0.940
+                                </div>
+                                <p>따라서, 전체 데이터 집합의 엔트로피는 0.940입니다.</p>
+                            </div>
+                            
+                            <div class="step">
+                                <h4>2. 각 속성에 대한 정보 이득 계산</h4>
+                                
+                                <p><strong>전망(Outlook) 속성에 대한 정보 이득:</strong></p>
+                                <p>전망 = 맑음: 5개 데이터 중 '예'는 2개, '아니오'는 3개<br>
+                                P(예|맑음) = 2/5 = 0.4, P(아니오|맑음) = 3/5 = 0.6<br>
+                                Entropy(맑음) = -0.4 × log₂(0.4) - 0.6 × log₂(0.6) = 0.971</p>
+                                
+                                <p>전망 = 구름: 4개 데이터 중 '예'는 4개, '아니오'는 0개<br>
+                                P(예|구름) = 4/4 = 1, P(아니오|구름) = 0/4 = 0<br>
+                                Entropy(구름) = -1 × log₂(1) - 0 × log₂(0) = 0</p>
+                                
+                                <p>전망 = 비: 5개 데이터 중 '예'는 3개, '아니오'는 2개<br>
+                                P(예|비) = 3/5 = 0.6, P(아니오|비) = 2/5 = 0.4<br>
+                                Entropy(비) = -0.6 × log₂(0.6) - 0.4 × log₂(0.4) = 0.971</p>
+                                
+                                <div class="formula">
+                                    Gain(S, 전망) = Entropy(S) - [(5/14) × Entropy(맑음) + (4/14) × Entropy(구름) + (5/14) × Entropy(비)]<br>
+                                    Gain(S, 전망) = 0.940 - [(5/14) × 0.971 + (4/14) × 0 + (5/14) × 0.971]<br>
+                                    Gain(S, 전망) = 0.940 - [0.347 + 0 + 0.347]<br>
+                                    Gain(S, 전망) = 0.940 - 0.694<br>
+                                    Gain(S, 전망) = 0.246
+                                </div>
+                                
+                                <p><strong>온도(Temperature) 속성에 대한 정보 이득:</strong></p>
+                                <p>온도 = 높음: 4개 데이터 중 '예'는 2개, '아니오'는 2개<br>
+                                Entropy(높음) = -0.5 × log₂(0.5) - 0.5 × log₂(0.5) = 1</p>
+                                
+                                <p>온도 = 보통: 6개 데이터 중 '예'는 4개, '아니오'는 2개<br>
+                                Entropy(보통) = -0.667 × log₂(0.667) - 0.333 × log₂(0.333) = 0.918</p>
+                                
+                                <p>온도 = 낮음: 4개 데이터 중 '예'는 3개, '아니오'는 1개<br>
+                                Entropy(낮음) = -0.75 × log₂(0.75) - 0.25 × log₂(0.25) = 0.811</p>
+                                
+                                <div class="formula">
+                                    Gain(S, 온도) = 0.940 - [(4/14) × 1 + (6/14) × 0.918 + (4/14) × 0.811]<br>
+                                    Gain(S, 온도) = 0.940 - [0.286 + 0.394 + 0.232]<br>
+                                    Gain(S, 온도) = 0.940 - 0.912<br>
+                                    Gain(S, 온도) = 0.028
+                                </div>
+                                
+                                <p><strong>습도(Humidity) 속성에 대한 정보 이득:</strong></p>
+                                <p>습도 = 높음: 7개 데이터 중 '예'는 3개, '아니오'는 4개<br>
+                                Entropy(높음) = -0.429 × log₂(0.429) - 0.571 × log₂(0.571) = 0.985</p>
+                                
+                                <p>습도 = 보통: 7개 데이터 중 '예'는 6개, '아니오'는 1개<br>
+                                Entropy(보통) = -0.857 × log₂(0.857) - 0.143 × log₂(0.143) = 0.592</p>
+                                
+                                <div class="formula">
+                                    Gain(S, 습도) = 0.940 - [(7/14) × 0.985 + (7/14) × 0.592]<br>
+                                    Gain(S, 습도) = 0.940 - [0.493 + 0.296]<br>
+                                    Gain(S, 습도) = 0.940 - 0.789<br>
+                                    Gain(S, 습도) = 0.151
+                                </div>
+                                
+                                <p><strong>바람(Wind) 속성에 대한 정보 이득:</strong></p>
+                                <p>바람 = 약함: 8개 데이터 중 '예'는 6개, '아니오'는 2개<br>
+                                Entropy(약함) = -0.75 × log₂(0.75) - 0.25 × log₂(0.25) = 0.811</p>
+                                
+                                <p>바람 = 강함: 6개 데이터 중 '예'는 3개, '아니오'는 3개<br>
+                                Entropy(강함) = -0.5 × log₂(0.5) - 0.5 × log₂(0.5) = 1</p>
+                                
+                                <div class="formula">
+                                    Gain(S, 바람) = 0.940 - [(8/14) × 0.811 + (6/14) × 1]<br>
+                                    Gain(S, 바람) = 0.940 - [0.463 + 0.429]<br>
+                                    Gain(S, 바람) = 0.940 - 0.892<br>
+                                    Gain(S, 바람) = 0.048
+                                </div>
+                            </div>
+                            
+                            <div class="step">
+                                <h4>3. 결정 트리의 첫 번째 분할에 가장 적합한 속성</h4>
+                                <p>계산된 정보 이득을 정리하면 다음과 같습니다:</p>
+                                <ul>
+                                    <li>전망(Outlook): 0.246</li>
+                                    <li>온도(Temperature): 0.028</li>
+                                    <li>습도(Humidity): 0.151</li>
+                                    <li>바람(Wind): 0.048</li>
+                                </ul>
+                                <p>따라서, <span class="highlight">전망(Outlook)</span>이 가장 높은 정보 이득(0.246)을 가지므로, 결정 트리의 첫 번째 분할에 가장 적합한 속성입니다.</p>
+                                <p>특히 주목할 점은 '전망 = 구름'일 때의 엔트로피가 0이라는 것입니다. 이는 '구름'이라는 전망 조건에서는 항상 피크닉을 가는 것으로 결정되어 있어, 추가적인 분할이 필요 없음을 의미합니다.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 문제 2: 온라인 쇼핑 구매 예측 -->
+            <div class="question-container" id="question2">
+                <div class="question-header" style="background-color: var(--secondary);">
+                    <h2>문제 2: 온라인 쇼핑 구매 예측</h2>
+                </div>
+                <div class="question-body">
+                    <p>한 온라인 쇼핑몰에서는 고객 데이터를 분석하여 구매 가능성이 높은 고객을 예측하고자 합니다. 다음은 20명의 고객 데이터입니다.</p>
+                    
+                    <div class="data-table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>고객 ID</th>
+                                    <th>연령대</th>
+                                    <th>성별</th>
+                                    <th>회원 등급</th>
+                                    <th>이전 구매 경험</th>
+                                    <th>구매</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>20대</td>
+                                    <td>여성</td>
+                                    <td>골드</td>
+                                    <td>있음</td>
+                                    <td><span class="badge badge-success">예</span></td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>30대</td>
+                                    <td>남성</td>
+                                    <td>실버</td>
+                                    <td>없음</td>
+                                    <td><span class="badge badge-warning">아니오</span></td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>20대</td>
+                                    <td>남성</td>
+                                    <td>골드</td>
+                                    <td>있음</td>
+                                    <td><span class="badge badge-success">예</span></td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>40대 이상</td>
+                                    <td>여성</td>
+                                    <td>실버</td>
+                                    <td>있음</td>
+                                    <td><span class="badge badge-success">예</span></td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td>40대 이상</td>
+                                    <td>남성</td>
+                                    <td>브론즈</td>
+                                    <td>없음</td>
+                                    <td><span class="badge badge-warning">아니오</span></td>
+                                </tr>
+                                <tr>
+                                    <td>6</td>
+                                    <td>30대</td>
+                                    <td>여성</td>
+                                    <td>골드</td>
+                                    <td>있음</td>
+                                    <td><span class="badge badge-success">예</span></td>
+                                </tr>
+                                <tr>
+                                    <td>7</td>
+                                    <td>20대</td>
+                                    <td>여성</td>
+                                    <td>브론즈</td>
+                                    <td>없음</td>
+                                    <td><span class="badge badge-warning">아니오</span></td>
+                                </tr>
+                                <tr>
+                                    <td>8</td>
+                                    <td>30대</td>
+                                    <td>남성</td>
+                                    <td>골드</td>
+                                    <td>있음</td>
+                                    <td><span class="badge badge-success">예</span></td>
+                                </tr>
+                                <tr>
+                                    <td>9</td>
+                                    <td>40대 이상</td>
+                                    <td>여성</td>
+                                    <td>브론즈</td>
+                                    <td>없음</td>
+                                    <td><span class="badge badge-warning">아니오</span></td>
+                                </tr>
+                                <tr>
+                                    <td>10</td>
+                                    <td>20대</td>
+                                    <td>남성</td>
+                                    <td>실버</td>
+                                    <td>있음</td>
+                                    <td><span class="badge badge-success">예</span></td>
+                                </tr>
+                                <tr>
+                                    <td>11</td>
+                                    <td>30대</td>
+                                    <td>여성</td>
+                                    <td>브론즈</td>
+                                    <td>없음</td>
+                                    <td><span class="badge badge-warning">아니오</span></td>
+                                </tr>
+                                <tr>
+                                    <td>12</td>
+                                    <td>20대</td>
+                                    <td>여성</td>
+                                    <td>실버</td>
+                                    <td>있음</td>
+                                    <td><span class="badge badge-success">예</span></td>
+                                </tr>
+                                <tr>
+                                    <td>13</td>
+                                    <td>40대 이상</td>
+                                    <td>남성</td>
+                                    <td>골드</td>
+                                    <td>있음</td>
+                                    <td><span class="badge badge-success">예</span></td>
+                                </tr>
+                                <tr>
+                                    <td>14</td>
+                                    <td>30대</td>
+                                    <td>남성</td>
+                                    <td>브론즈</td>
+                                    <td>없음</td>
+                                    <td><span class="badge badge-warning">아니오</span></td>
+                                </tr>
+                                <tr>
+                                    <td>15</td>
+                                    <td>20대</td>
+                                    <td>남성</td>
+                                    <td>브론즈</td>
+                                    <td>없음</td>
+                                    <td><span class="badge badge-warning">아니오</span></td>
+                                </tr>
+                                <tr>
+                                    <td>16</td>
+                                    <td>40대 이상</td>
+                                    <td>여성</td>
+                                    <td>골드</td>
+                                    <td>있음</td>
+                                    <td><span class="badge badge-success">예</span></td>
+                                </tr>
+                                <tr>
+                                    <td>17</td>
+                                    <td>30대</td>
+                                    <td>여성</td>
+                                    <td>실버</td>
+                                    <td>있음</td>
+                                    <td><span class="badge badge-success">예</span></td>
+                                </tr>
+                                <tr>
+                                    <td>18</td>
+                                    <td>20대</td>
+                                    <td>남성</td>
+                                    <td>실버</td>
+                                    <td>없음</td>
+                                    <td><span class="badge badge-warning">아니오</span></td>
+                                </tr>
+                                <tr>
+                                    <td>19</td>
+                                    <td>30대</td>
+                                    <td>남성</td>
+                                    <td>골드</td>
+                                    <td>있음</td>
+                                    <td><span class="badge badge-success">예</span></td>
+                                </tr>
+                                <tr>
+                                    <td>20</td>
+                                    <td>40대 이상</td>
+                                    <td>여성</td>
+                                    <td>실버</td>
+                                    <td>없음</td>
+                                    <td><span class="badge badge-warning">아니오</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="question-list">
+                        <p>1. 전체 데이터 집합의 엔트로피를 계산하세요.</p>
+                        <p>2. 각 속성(연령대, 성별, 회원 등급, 이전 구매 경험)에 대한 정보 이득을 계산하세요.</p>
+                        <p>3. 가장 높은 정보 이득을 가진 속성은 무엇이며, 해당 속성으로 데이터를 분할한 후 각 하위 집합의 엔트로피는 얼마인가요?</p>
+                    </div>
+                    
+                    <div class="btn-container">
+                        <button class="btn" style="background-color: var(--secondary);" onclick="toggleAnswer(this)">답안 보기</button>
+                    </div>
+                    
+                    <div class="answer" id="answer2" style="background-color: var(--secondary-light); border-left-color: var(--secondary);">
+                        <div class="answer-header" style="background-color: var(--secondary);">
+                            <h3>답안 및 해설</h3>
+                        </div>
+                        <div class="answer-body">
+                            <div class="step" style="border-left-color: var(--secondary);">
+                                <h4>1. 전체 데이터 집합의 엔트로피 계산</h4>
+                                <p>전체 20개의 데이터에서 '구매=예'는 10개, '구매=아니오'는 10개입니다.</p>
+                                <p>P(예) = 10/20 = 0.5, P(아니오) = 10/20 = 0.5</p>
+                                <div class="formula">
+                                    Entropy(S) = -0.5 × log₂(0.5) - 0.5 × log₂(0.5)<br>
+                                    Entropy(S) = -0.5 × (-1) - 0.5 × (-1)<br>
+                                    Entropy(S) = 0.5 + 0.5<br>
+                                    Entropy(S) = 1
+                                </div>
+                                <p>따라서, 전체 데이터 집합의 엔트로피는 1입니다. 이는 데이터가 완전히 균등하게 분포되어 있음을 의미합니다.</p>
+                            </div>
+                            
+                            <div class="step" style="border-left-color: var(--secondary);">
+                                <h4>2. 각 속성에 대한 정보 이득 계산</h4>
+                                
+                                <p><strong>연령대 속성에 대한 정보 이득:</strong></p>
+                                <p>연령대 = 20대: 6개 데이터 중 '예'는 3개, '아니오'는 3개<br>
+                                P(예|20대) = 3/6 = 0.5, P(아니오|20대) = 3/6 = 0.5<br>
+                                Entropy(20대) = -0.5 × log₂(0.5) - 0.5 × log₂(0.5) = 1</p>
+                                
+                                <p>연령대 = 30대: 7개 데이터 중 '예'는 3개, '아니오'는 4개<br>
+                                P(예|30대) = 3/7 ≈ 0.429, P(아니오|30대) = 4/7 ≈ 0.571<br>
+                                Entropy(30대) = -0.429 × log₂(0.429) - 0.571 × log₂(0.571) ≈ 0.985</p>
+                                
+                                <p>연령대 = 40대 이상: 7개 데이터 중 '예'는 4개, '아니오'는 3개<br>
+                                P(예|40대 이상) = 4/7 ≈ 0.571, P(아니오|40대 이상) = 3/7 ≈ 0.429<br>
+                                Entropy(40대 이상) = -0.571 × log₂(0.571) - 0.429 × log₂(0.429) ≈ 0.985</p>
+                                
+                                <div class="formula">
+                                    Gain(S, 연령대) = Entropy(S) - [(6/20) × Entropy(20대) + (7/20) × Entropy(30대) + (7/20) × Entropy(40대 이상)]<br>
+                                    Gain(S, 연령대) = 1 - [(6/20) × 1 + (7/20) × 0.985 + (7/20) × 0.985]<br>
+                                    Gain(S, 연령대) = 1 - [0.3 + 0.345 + 0.345]<br>
+                                    Gain(S, 연령대) = 1 - 0.99<br>
+                                    Gain(S, 연령대) = 0.01
+                                </div>
+                                
+                                <p><strong>성별 속성에 대한 정보 이득:</strong></p>
+                                <p>성별 = 여성: 10개 데이터 중 '예'는 6개, '아니오'는 4개<br>
+                                P(예|여성) = 6/10 = 0.6, P(아니오|여성) = 4/10 = 0.4<br>
+                                Entropy(여성) = -0.6 × log₂(0.6) - 0.4 × log₂(0.4) ≈ 0.971</p>
+                                
+                                <p>성별 = 남성: 10개 데이터 중 '예'는 4개, '아니오'는 6개<br>
+                                P(예|남성) = 4/10 = 0.4, P(아니오|남성) = 6/10 = 0.6<br>
+                                Entropy(남성) = -0.4 × log₂(0.4) - 0.6 × log₂(0.6) ≈ 0.971</p>
+                                
+                                <div class="formula">
+                                    Gain(S, 성별) = Entropy(S) - [(10/20) × Entropy(여성) + (10/20) × Entropy(남성)]<br>
+                                    Gain(S, 성별) = 1 - [(10/20) × 0.971 + (10/20) × 0.971]<br>
+                                    Gain(S, 성별) = 1 - [0.486 + 0.486]<br>
+                                    Gain(S, 성별) = 1 - 0.971<br>
+                                    Gain(S, 성별) = 0.029
+                                </div>
+                                
+                                <p><strong>회원 등급 속성에 대한 정보 이득:</strong></p>
+                                <p>회원 등급 = 골드: 7개 데이터 중 '예'는 7개, '아니오'는 0개<br>
+                                P(예|골드) = 7/7 = 1, P(아니오|골드) = 0/7 = 0<br>
+                                Entropy(골드) = -1 × log₂(1) - 0 × log₂(0) = 0</p>
+                                
+                                <p>회원 등급 = 실버: 7개 데이터 중 '예'는 3개, '아니오'는 4개<br>
+                                P(예|실버) = 3/7 ≈ 0.429, P(아니오|실버) = 4/7 ≈ 0.571<br>
+                                Entropy(실버) = -0.429 × log₂(0.429) - 0.571 × log₂(0.571) ≈ 0.985</p>
+                                
+                                <p>회원 등급 = 브론즈: 6개 데이터 중 '예'는 0개, '아니오'는 6개<br>
+                                P(예|브론즈) = 0/6 = 0, P(아니오|브론즈) = 6/6 = 1<br>
+                                Entropy(브론즈) = -0 × log₂(0) - 1 × log₂(1) = 0</p>
+                                
+                                <div class="formula">
+                                    Gain(S, 회원 등급) = Entropy(S) - [(7/20) × Entropy(골드) + (7/20) × Entropy(실버) + (6/20) × Entropy(브론즈)]<br>
+                                    Gain(S, 회원 등급) = 1 - [(7/20) × 0 + (7/20) × 0.985 + (6/20) × 0]<br>
+                                    Gain(S, 회원 등급) = 1 - [0 + 0.345 + 0]<br>
+                                    Gain(S, 회원 등급) = 1 - 0.345<br>
+                                    Gain(S, 회원 등급) = 0.655
+                                </div>
+                                
+                                <p><strong>이전 구매 경험 속성에 대한 정보 이득:</strong></p>
+                                <p>이전 구매 경험 = 있음: 10개 데이터 중 '예'는 10개, '아니오'는 0개<br>
+                                P(예|있음) = 10/10 = 1, P(아니오|있음) = 0/10 = 0<br>
+                                Entropy(있음) = -1 × log₂(1) - 0 × log₂(0) = 0</p>
+                                
+                                <p>이전 구매 경험 = 없음: 10개 데이터 중 '예'는 0개, '아니오'는 10개<br>
+                                P(예|없음) = 0/10 = 0, P(아니오|없음) = 10/10 = 1<br>
+                                Entropy(없음) = -0 × log₂(0) - 1 × log₂(1) = 0</p>
+                                
+                                <div class="formula">
+                                    Gain(S, 이전 구매 경험) = Entropy(S) - [(10/20) × Entropy(있음) + (10/20) × Entropy(없음)]<br>
+                                    Gain(S, 이전 구매 경험) = 1 - [(10/20) × 0 + (10/20) × 0]<br>
+                                    Gain(S, 이전 구매 경험) = 1 - [0 + 0]<br>
+                                    Gain(S, 이전 구매 경험) = 1 - 0<br>
+                                    Gain(S, 이전 구매 경험) = 1
+                                </div>
+                            </div>
+                            
+                            <div class="step" style="border-left-color: var(--secondary);">
+                                <h4>3. 가장 높은 정보 이득을 가진 속성 및 하위 집합 엔트로피</h4>
+                                <p>계산된 정보 이득을 정리하면 다음과 같습니다:</p>
+                                <ul>
+                                    <li>연령대: 0.01</li>
+                                    <li>성별: 0.029</li>
+                                    <li>회원 등급: 0.655</li>
+                                    <li>이전 구매 경험: 1</li>
+                                </ul>
+                                <p>따라서, <span class="highlight">이전 구매 경험</span>이 가장 높은 정보 이득(1)을 가집니다.</p>
+                                <p>'이전 구매 경험'으로 데이터를 분할한 후 각 하위 집합의 엔트로피는:</p>
+                                <ul>
+                                    <li>이전 구매 경험 = 있음: Entropy = 0</li>
+                                    <li>이전 구매 경험 = 없음: Entropy = 0</li>
+                                </ul>
+                                <p>이처럼 두 하위 집합 모두 엔트로피가 0이라는 것은 각 하위 집합이 완전히 '순수(pure)'하다는 것을 의미합니다. 즉, '이전 구매 경험 = 있음'인 고객은 모두 구매를 하고, '이전 구매 경험 = 없음'인 고객은 모두 구매를 하지 않습니다. 이 경우 더 이상의 분할이 필요 없으며, 이전 구매 경험 하나만으로도 구매 여부를 완벽하게 예측할 수 있습니다.</p>
+                                <p>이는 실제 상황에서는 다소 이상적인 케이스이며, 실제 데이터에서는 이렇게 완벽한 분류가 이루어지기 어렵습니다. 하지만 이 예제를 통해 정보 이득이 어떻게 계산되고 어떤 의미를 가지는지를 이해할 수 있습니다.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 문제 3: 온라인 게임 승리 예측 -->
+            <div class="question-container" id="question3">
+                <div class="question-header" style="background-color: var(--game);">
+                    <h2>문제 3: 온라인 게임 승리 예측</h2>
+                </div>
+                <div class="question-body">
+                    <p>인기 온라인 게임 'Battle Royale'에서 플레이어의 특성을 분석하여 게임 승리 여부를 예측하려고 합니다. 다음은 18명의 플레이어 데이터입니다.</p>
+                    
+                    <div class="data-table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>플레이어 ID</th>
+                                    <th>경험 레벨</th>
+                                    <th>아이템 수준</th>
+                                    <th>팀 구성</th>
+                                    <th>게임 스타일</th>
+                                    <th>승리</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>P1</td>
+                                    <td>고급</td>
+                                    <td>상급</td>
+                                    <td>팀플레이</td>
+                                    <td>공격적</td>
+                                    <td><span class="badge badge-success">예</span></td>
+                                </tr>
+                                <tr>
+                                    <td>P2</td>
+                                    <td>초급</td>
+                                    <td>하급</td>
+                                    <td>솔로</td>
+                                    <td>방어적</td>
+                                    <td><span class="badge badge-warning">아니오</span></td>
+                                </tr>
+                                <tr>
+                                    <td>P3</td>
+                                    <td>중급</td>
+                                    <td>중급</td>
+                                    <td>팀플레이</td>
+                                    <td>공격적</td>
+                                    <td><span class="badge badge-success">예</span></td>
+                                </tr>
+                                <tr>
+                                    <td>P4</td>
+                                    <td>고급</td>
+                                    <td>중급</td>
+                                    <td>솔로</td>
+                                    <td>공격적</td>
+                                    <td><span class="badge badge-success">예</span></td>
+                                </tr>
+                                <tr>
+                                    <td>P5</td>
+                                    <td>초급</td>
+                                    <td>중급</td>
+                                    <td>팀플레이</td>
+                                    <td>방어적</td>
+                                    <td><span class="badge badge-warning">아니오</span></td>
+                                </tr>
+                                <tr>
+                                    <td>P6</td>
+                                    <td>중급</td>
+                                    <td>상급</td>
+                                    <td>솔로</td>
+                                    <td>공격적</td>
+                                    <td><span class="badge badge-warning">아니오</span></td>
+                                </tr>
+                                <tr>
+                                    <td>P7</td>
+                                    <td>고급</td>
+                                    <td>상급</td>
+                                    <td>솔로</td>
+                                    <td>방어적</td>
+                                    <td><span class="badge badge-warning">아니오</span></td>
+                                </tr>
+                                <tr>
+                                    <td>P8</td>
+                                    <td>초급</td>
+                                    <td>하급</td>
+                                    <td>팀플레이</td>
+                                    <td>공격적</td>
+                                    <td><span class="badge badge-warning">아니오</span></td>
+                                </tr>
+                                <tr>
+                                    <td>P9</td>
+                                    <td>중급</td>
+                                    <td>하급</td>
+                                    <td>솔로</td>
+                                    <td>방어적</td>
+                                    <td><span class="badge badge-warning">아니오</span></td>
+                                </tr>
+                                <tr>
+                                    <td>P10</td>
+                                    <td>고급</td>
+                                    <td>중급</td>
+                                    <td>팀플레이</td>
+                                    <td>방어적</td>
+                                    <td><span class="badge badge-success">예</span></td>
+                                </tr>
+                                <tr>
+                                    <td>P11</td>
+                                    <td>초급</td>
+                                    <td>상급</td>
+                                    <td>솔로</td>
+                                    <td>공격적</td>
+                                    <td><span class="badge badge-warning">아니오</span></td>
+                                </tr>
+                                <tr>
+                                    <td>P12</td>
+                                    <td>중급</td>
+                                    <td>중급</td>
+                                    <td>팀플레이</td>
+                                    <td>방어적</td>
+                                    <td><span class="badge badge-success">예</span></td>
+                                </tr>
+                                <tr>
+                                    <td>P13</td>
+                                    <td>고급</td>
+                                    <td>하급</td>
+                                    <td>팀플레이</td>
+                                    <td>공격적</td>
+                                    <td><span class="badge badge-success">예</span></td>
+                                </tr>
+                                <tr>
+                                    <td>P14</td>
+                                    <td>초급</td>
+                                    <td>중급</td>
+                                    <td>솔로</td>
+                                    <td>방어적</td>
+                                    <td><span class="badge badge-warning">아니오</span></td>
+                                </tr>
+                                <tr>
+                                    <td>P15</td>
+                                    <td>중급</td>
+                                    <td>하급</td>
+                                    <td>팀플레이</td>
+                                    <td>공격적</td>
+                                    <td><span class="badge badge-success">예</span></td>
+                                </tr>
+                                <tr>
+                                    <td>P16</td>
+                                    <td>고급</td>
+                                    <td>상급</td>
+                                    <td>팀플레이</td>
+                                    <td>방어적</td>
+                                    <td><span class="badge badge-success">예</span></td>
+                                </tr>
+                                <tr>
+                                    <td>P17</td>
+                                    <td>중급</td>
+                                    <td>상급</td>
+                                    <td>팀플레이</td>
+                                    <td>공격적</td>
+                                    <td><span class="badge badge-success">예</span></td>
+                                </tr>
+                                <tr>
+                                    <td>P18</td>
+                                    <td>초급</td>
+                                    <td>하급</td>
+                                    <td>솔로</td>
+                                    <td>공격적</td>
+                                    <td><span class="badge badge-warning">아니오</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="question-list">
+                        <p>1. 전체 데이터 집합의 엔트로피를 계산하세요.</p>
+                        <p>2. 각 속성(경험 레벨, 아이템 수준, 팀 구성, 게임 스타일)에 대한 정보 이득을 계산하세요.</p>
+                        <p>3. 가장 높은 정보 이득을 가진 속성으로 첫 번째 분할을 한 후, 가장 큰 하위 집합에 대해 두 번째 분할에 가장 적합한 속성은 무엇인가요?</p>
+                    </div>
+                    
+                    <div class="btn-container">
+                        <button class="btn" style="background-color: var(--game);" onclick="toggleAnswer(this)">답안 보기</button>
+                    </div>
+                    
+                    <div class="answer" id="answer3" style="background-color: var(--game-light); border-left-color: var(--game);">
+                        <div class="answer-header" style="background-color: var(--game);">
+                            <h3>답안 및 해설</h3>
+                        </div>
+                        <div class="answer-body">
+                            <div class="step" style="border-left-color: var(--game);">
+                                <h4>1. 전체 데이터 집합의 엔트로피 계산</h4>
+                                <p>전체 18개의 데이터에서 '승리=예'는 9개, '승리=아니오'는 9개입니다.</p>
+                                <p>P(예) = 9/18 = 0.5, P(아니오) = 9/18 = 0.5</p>
+                                <div class="formula">
+                                    Entropy(S) = -0.5 × log₂(0.5) - 0.5 × log₂(0.5)<br>
+                                    Entropy(S) = -0.5 × (-1) - 0.5 × (-1)<br>
+                                    Entropy(S) = 0.5 + 0.5<br>
+                                    Entropy(S) = 1
+                                </div>
+                                <p>따라서, 전체 데이터 집합의 엔트로피는 1입니다. 이는 승리와 패배가 균등하게 분포되어 있어 불확실성이 최대임을 의미합니다.</p>
+                            </div>
+                            
+                            <div class="step" style="border-left-color: var(--game);">
+                                <h4>2. 각 속성에 대한 정보 이득 계산</h4>
+                                
+                                <p><strong>경험 레벨 속성에 대한 정보 이득:</strong></p>
+                                <p>경험 레벨 = 고급: 6개 데이터 중 '예'는 4개, '아니오'는 2개<br>
+                                P(예|고급) = 4/6 ≈ 0.667, P(아니오|고급) = 2/6 ≈ 0.333<br>
+                                Entropy(고급) = -0.667 × log₂(0.667) - 0.333 × log₂(0.333) ≈ 0.918</p>
+                                
+                                <p>경험 레벨 = 중급: 6개 데이터 중 '예'는 4개, '아니오'는 2개<br>
+                                P(예|중급) = 4/6 ≈ 0.667, P(아니오|중급) = 2/6 ≈ 0.333<br>
+                                Entropy(중급) = -0.667 × log₂(0.667) - 0.333 × log₂(0.333) ≈ 0.918</p>
+                                
+                                <p>경험 레벨 = 초급: 6개 데이터 중 '예'는 1개, '아니오'는 5개<br>
+                                P(예|초급) = 1/6 ≈ 0.167, P(아니오|초급) = 5/6 ≈ 0.833<br>
+                                Entropy(초급) = -0.167 × log₂(0.167) - 0.833 × log₂(0.833) ≈ 0.650</p>
+                                
+                                <div class="formula">
+                                    Gain(S, 경험 레벨) = Entropy(S) - [(6/18) × Entropy(고급) + (6/18) × Entropy(중급) + (6/18) × Entropy(초급)]<br>
+                                    Gain(S, 경험 레벨) = 1 - [(6/18) × 0.918 + (6/18) × 0.918 + (6/18) × 0.650]<br>
+                                    Gain(S, 경험 레벨) = 1 - [0.306 + 0.306 + 0.217]<br>
+                                    Gain(S, 경험 레벨) = 1 - 0.829<br>
+                                    Gain(S, 경험 레벨) = 0.171
+                                </div>
+                                
+                                <p><strong>아이템 수준 속성에 대한 정보 이득:</strong></p>
+                                <p>아이템 수준 = 상급: 6개 데이터 중 '예'는 3개, '아니오'는 3개<br>
+                                P(예|상급) = 3/6 = 0.5, P(아니오|상급) = 3/6 = 0.5<br>
+                                Entropy(상급) = -0.5 × log₂(0.5) - 0.5 × log₂(0.5) = 1</p>
+                                
+                                <p>아이템 수준 = 중급: 6개 데이터 중 '예'는 4개, '아니오'는 2개<br>
+                                P(예|중급) = 4/6 ≈ 0.667, P(아니오|중급) = 2/6 ≈ 0.333<br>
+                                Entropy(중급) = -0.667 × log₂(0.667) - 0.333 × log₂(0.333) ≈ 0.918</p>
+                                
+                                <p>아이템 수준 = 하급: 6개 데이터 중 '예'는 2개, '아니오'는 4개<br>
+                                P(예|하급) = 2/6 ≈ 0.333, P(아니오|하급) = 4/6 ≈ 0.667<br>
+                                Entropy(하급) = -0.333 × log₂(0.333) - 0.667 × log₂(0.667) ≈ 0.918</p>
+                                
+                                <div class="formula">
+                                    Gain(S, 아이템 수준) = Entropy(S) - [(6/18) × Entropy(상급) + (6/18) × Entropy(중급) + (6/18) × Entropy(하급)]<br>
+                                    Gain(S, 아이템 수준) = 1 - [(6/18) × 1 + (6/18) × 0.918 + (6/18) × 0.918]<br>
+                                    Gain(S, 아이템 수준) = 1 - [0.333 + 0.306 + 0.306]<br>
+                                    Gain(S, 아이템 수준) = 1 - 0.945<br>
+                                    Gain(S, 아이템 수준) = 0.055
+                                </div>
+                                
+                                <p><strong>팀 구성 속성에 대한 정보 이득:</strong></p>
+                                <p>팀 구성 = 팀플레이: 10개 데이터 중 '예'는 8개, '아니오'는 2개<br>
+                                P(예|팀플레이) = 8/10 = 0.8, P(아니오|팀플레이) = 2/10 = 0.2<br>
+                                Entropy(팀플레이) = -0.8 × log₂(0.8) - 0.2 × log₂(0.2) ≈ 0.722</p>
+                                
+                                <p>팀 구성 = 솔로: 8개 데이터 중 '예'는 1개, '아니오'는 7개<br>
+                                P(예|솔로) = 1/8 = 0.125, P(아니오|솔로) = 7/8 = 0.875<br>
+                                Entropy(솔로) = -0.125 × log₂(0.125) - 0.875 × log₂(0.875) ≈ 0.544</p>
+                                
+                                <div class="formula">
+                                    Gain(S, 팀 구성) = Entropy(S) - [(10/18) × Entropy(팀플레이) + (8/18) × Entropy(솔로)]<br>
+                                    Gain(S, 팀 구성) = 1 - [(10/18) × 0.722 + (8/18) × 0.544]<br>
+                                    Gain(S, 팀 구성) = 1 - [0.401 + 0.242]<br>
+                                    Gain(S, 팀 구성) = 1 - 0.643<br>
+                                    Gain(S, 팀 구성) = 0.357
+                                </div>
+                                
+                                <p><strong>게임 스타일 속성에 대한 정보 이득:</strong></p>
+                                <p>게임 스타일 = 공격적: 9개 데이터 중 '예'는 5개, '아니오'는 4개<br>
+                                P(예|공격적) = 5/9 ≈ 0.556, P(아니오|공격적) = 4/9 ≈ 0.444<br>
+                                Entropy(공격적) = -0.556 × log₂(0.556) - 0.444 × log₂(0.444) ≈ 0.991</p>
+                                
+                                <p>게임 스타일 = 방어적: 9개 데이터 중 '예'는 4개, '아니오'는 5개<br>
+                                P(예|방어적) = 4/9 ≈ 0.444, P(아니오|방어적) = 5/9 ≈ 0.556<br>
+                                Entropy(방어적) = -0.444 × log₂(0.444) - 0.556 × log₂(0.556) ≈ 0.991</p>
+                                
+                                <div class="formula">
+                                    Gain(S, 게임 스타일) = Entropy(S) - [(9/18) × Entropy(공격적) + (9/18) × Entropy(방어적)]<br>
+                                    Gain(S, 게임 스타일) = 1 - [(9/18) × 0.991 + (9/18) × 0.991]<br>
+                                    Gain(S, 게임 스타일) = 1 - [0.496 + 0.496]<br>
+                                    Gain(S, 게임 스타일) = 1 - 0.991<br>
+                                    Gain(S, 게임 스타일) = 0.009
+                                </div>
+                            </div>
+                            
+                            <div class="step" style="border-left-color: var(--game);">
+                                <h4>3. 첫 번째 분할 및 두 번째 분할</h4>
+                                <p>계산된 정보 이득을 정리하면 다음과 같습니다:</p>
+                                <ul>
+                                    <li>경험 레벨: 0.171</li>
+                                    <li>아이템 수준: 0.055</li>
+                                    <li>팀 구성: 0.357</li>
+                                    <li>게임 스타일: 0.009</li>
+                                </ul>
+                                <p>따라서, <span class="highlight">팀 구성</span>이 가장 높은 정보 이득(0.357)을 가지므로, 결정 트리의 첫 번째 분할에 가장 적합한 속성입니다.</p>
+                                
+                                <p>첫 번째 분할 후 하위 집합은 다음과 같습니다:</p>
+                                <ul>
+                                    <li>팀 구성 = 팀플레이: 10개 데이터 (승리=예: 8개, 승리=아니오: 2개)</li>
+                                    <li>팀 구성 = 솔로: 8개 데이터 (승리=예: 1개, 승리=아니오: 7개)</li>
+                                </ul>
+                                <p>가장 큰 하위 집합은 '팀 구성 = 팀플레이'로 10개 데이터가 있습니다. 이 하위 집합에 대해 두 번째 분할에 가장 적합한 속성을 찾아보겠습니다.</p>
+                                
+                                <p>'팀 구성 = 팀플레이' 하위 집합의 엔트로피:</p>
+                                <div class="formula">
+                                    Entropy(팀플레이) = -0.8 × log₂(0.8) - 0.2 × log₂(0.2) ≈ 0.722
+                                </div>
+                                
+                                <p><strong>경험 레벨 속성에 대한 정보 이득 (팀플레이 하위 집합):</strong></p>
+                                <p>경험 레벨 = 고급 & 팀플레이: 3개 데이터 중 '예'는 3개, '아니오'는 0개<br>
+                                Entropy(고급 & 팀플레이) = 0</p>
+                                
+                                <p>경험 레벨 = 중급 & 팀플레이: 4개 데이터 중 '예'는 4개, '아니오'는 0개<br>
+                                Entropy(중급 & 팀플레이) = 0</p>
+                                
+                                <p>경험 레벨 = 초급 & 팀플레이: 3개 데이터 중 '예'는 1개, '아니오'는 2개<br>
+                                P(예|초급 & 팀플레이) = 1/3 ≈ 0.333, P(아니오|초급 & 팀플레이) = 2/3 ≈ 0.667<br>
+                                Entropy(초급 & 팀플레이) = -0.333 × log₂(0.333) - 0.667 × log₂(0.667) ≈ 0.918</p>
+                                
+                                <div class="formula">
+                                    Gain(팀플레이, 경험 레벨) = Entropy(팀플레이) - [(3/10) × Entropy(고급 & 팀플레이) + (4/10) × Entropy(중급 & 팀플레이) + (3/10) × Entropy(초급 & 팀플레이)]<br>
+                                    Gain(팀플레이, 경험 레벨) = 0.722 - [(3/10) × 0 + (4/10) × 0 + (3/10) × 0.918]<br>
+                                    Gain(팀플레이, 경험 레벨) = 0.722 - [0 + 0 + 0.275]<br>
+                                    Gain(팀플레이, 경험 레벨) = 0.722 - 0.275<br>
+                                    Gain(팀플레이, 경험 레벨) = 0.447
+                                </div>
+                                
+                                <p><strong>아이템 수준 속성에 대한 정보 이득 (팀플레이 하위 집합):</strong></p>
+                                <p>계산 결과: Gain(팀플레이, 아이템 수준) ≈ 0.129</p>
+                                
+                                <p><strong>게임 스타일 속성에 대한 정보 이득 (팀플레이 하위 집합):</strong></p>
+                                <p>계산 결과: Gain(팀플레이, 게임 스타일) ≈ 0.021</p>
+                                
+                                <p>따라서, '팀 구성 = 팀플레이' 하위 집합에 대해 두 번째 분할에 가장 적합한 속성은 <span class="highlight">경험 레벨</span>(정보 이득: 0.447)입니다.</p>
+                                
+                                <p>경험 레벨로 분할하면, 고급 및 중급 팀플레이어들은 모두 승리하게 되고, 초급 팀플레이어들은 추가 속성에 따라 승리 여부가 결정됩니다.</p>
+                                
+                                <p>이 예제는 온라인 게임에서 팀플레이와 경험 레벨이 승리 확률에 큰 영향을 미친다는 것을 보여줍니다. 특히 팀플레이를 하는 중급 이상의 플레이어는 높은 승률을 보이는 반면, 솔로 플레이어는 대부분 승리하지 못하는 패턴을 확인할 수 있습니다.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 문제 4: 의료 진단 예측 -->
+            <div class="question-container" id="question4">
+                <div class="question-header" style="background-color: var(--medical);">
+                    <h2>문제 4: 의료 진단 예측</h2>
+                </div>
+                <div class="question-body">
+                    <p>의사들이 환자의 여러 증상을 바탕으로 특정 질병의 위험도를 예측하려고 합니다. 다음은 15명의 환자 데이터입니다.</p>
+                    
+                    <div class="data-table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>환자 ID</th>
+                                    <th>발열</th>
+                                    <th>기침</th>
+                                    <th>피로감</th>
+                                    <th>위험도</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>높음</td>
+                                    <td>심함</td>
+                                    <td>높음</td>
+                                    <td><span class="badge badge-warning">높음</span></td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>높음</td>
+                                    <td>심함</td>
+                                    <td>낮음</td>
+                                    <td><span class="badge badge-warning">높음</span></td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>낮음</td>
+                                    <td>심함</td>
+                                    <td>낮음</td>
+                                    <td><span class="badge badge-success">낮음</span></td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>높음</td>
+                                    <td>가벼움</td>
+                                    <td>높음</td>
+                                    <td><span class="badge badge-warning">높음</span></td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td>낮음</td>
+                                    <td>가벼움</td>
+                                    <td>낮음</td>
+                                    <td><span class="badge badge-success">낮음</span></td>
+                                </tr>
+                                <tr>
+                                    <td>6</td>
+                                    <td>낮음</td>
+                                    <td>심함</td>
+                                    <td>높음</td>
+                                    <td><span class="badge badge-warning">높음</span></td>
+                                </tr>
+                                <tr>
+                                    <td>7</td>
+                                    <td>높음</td>
+                                    <td>없음</td>
+                                    <td>높음</td>
+                                    <td><span class="badge badge-success">낮음</span></td>
+                                </tr>
+                                <tr>
+                                    <td>8</td>
+                                    <td>낮음</td>
+                                    <td>없음</td>
+                                    <td>낮음</td>
+                                    <td><span class="badge badge-success">낮음</span></td>
+                                </tr>
+                                <tr>
+                                    <td>9</td>
+                                    <td>높음</td>
+                                    <td>가벼움</td>
+                                    <td>낮음</td>
+                                    <td><span class="badge badge-success">낮음</span></td>
+                                </tr>
+                                <tr>
+                                    <td>10</td>
+                                    <td>낮음</td>
+                                    <td>가벼움</td>
+                                    <td>높음</td>
+                                    <td><span class="badge badge-success">낮음</span></td>
+                                </tr>
+                                <tr>
+                                    <td>11</td>
+                                    <td>높음</td>
+                                    <td>없음</td>
+                                    <td>낮음</td>
+                                    <td><span class="badge badge-success">낮음</span></td>
+                                </tr>
+                                <tr>
+                                    <td>12</td>
+                                    <td>낮음</td>
+                                    <td>없음</td>
+                                    <td>높음</td>
+                                    <td><span class="badge badge-success">낮음</span></td>
+                                </tr>
+                                <tr>
+                                    <td>13</td>
+                                    <td>높음</td>
+                                    <td>심함</td>
+                                    <td>높음</td>
+                                    <td><span class="badge badge-warning">높음</span></td>
+                                </tr>
+                                <tr>
+                                    <td>14</td>
+                                    <td>낮음</td>
+                                    <td>심함</td>
+                                    <td>높음</td>
+                                    <td><span class="badge badge-warning">높음</span></td>
+                                </tr>
+                                <tr>
+                                    <td>15</td>
+                                    <td>높음</td>
+                                    <td>가벼움</td>
+                                    <td>높음</td>
+                                    <td><span class="badge badge-warning">높음</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="question-list">
+                        <p>1. 전체 데이터 집합의 엔트로피를 계산하세요.</p>
+                        <p>2. 각 증상 속성(발열, 기침, 피로감)에 대한 정보 이득을 계산하세요.</p>
+                        <p>3. 가장 높은 정보 이득을 가진 속성으로 첫 번째 분할을 한 후, 질병 예측을 위한 간단한 결정 규칙을 작성하세요.</p>
+                    </div>
+                    
+                    <div class="btn-container">
+                        <button class="btn" style="background-color: var(--medical);" onclick="toggleAnswer(this)">답안 보기</button>
+                    </div>
+                    
+                    <div class="answer" id="answer4" style="background-color: var(--medical-light); border-left-color: var(--medical);">
+                        <div class="answer-header" style="background-color: var(--medical);">
+                            <h3>답안 및 해설</h3>
+                        </div>
+                        <div class="answer-body">
+                            <div class="step" style="border-left-color: var(--medical);">
+                                <h4>1. 전체 데이터 집합의 엔트로피 계산</h4>
+                                <p>전체 15개의 데이터에서 '위험도=높음'은 7개, '위험도=낮음'은 8개입니다.</p>
+                                <p>P(높음) = 7/15 ≈ 0.467, P(낮음) = 8/15 ≈ 0.533</p>
+                                <div class="formula">
+                                    Entropy(S) = -0.467 × log₂(0.467) - 0.533 × log₂(0.533)<br>
+                                    Entropy(S) = -0.467 × (-1.099) - 0.533 × (-0.908)<br>
+                                    Entropy(S) = 0.513 + 0.484<br>
+                                    Entropy(S) = 0.997
+                                </div>
+                                <p>따라서, 전체 데이터 집합의 엔트로피는 0.997입니다. 이는 거의 최대 엔트로피(1)에 가까워 불확실성이 매우 높은 상태입니다.</p>
+                            </div>
+                            
+                            <div class="step" style="border-left-color: var(--medical);">
+                                <h4>2. 각 증상 속성에 대한 정보 이득 계산</h4>
+                                
+                                <p><strong>발열 속성에 대한 정보 이득:</strong></p>
+                                <p>발열 = 높음: 8개 데이터 중 '위험도=높음'은 5개, '위험도=낮음'은 3개<br>
+                                P(높음|발열=높음) = 5/8 = 0.625, P(낮음|발열=높음) = 3/8 = 0.375<br>
+                                Entropy(발열=높음) = -0.625 × log₂(0.625) - 0.375 × log₂(0.375) ≈ 0.954</p>
+                                
+                                <p>발열 = 낮음: 7개 데이터 중 '위험도=높음'은 2개, '위험도=낮음'은 5개<br>
+                                P(높음|발열=낮음) = 2/7 ≈ 0.286, P(낮음|발열=낮음) = 5/7 ≈ 0.714<br>
+                                Entropy(발열=낮음) = -0.286 × log₂(0.286) - 0.714 × log₂(0.714) ≈ 0.863</p>
+                                
+                                <div class="formula">
+                                    Gain(S, 발열) = Entropy(S) - [(8/15) × Entropy(발열=높음) + (7/15) × Entropy(발열=낮음)]<br>
+                                    Gain(S, 발열) = 0.997 - [(8/15) × 0.954 + (7/15) × 0.863]<br>
+                                    Gain(S, 발열) = 0.997 - [0.509 + 0.403]<br>
+                                    Gain(S, 발열) = 0.997 - 0.912<br>
+                                    Gain(S, 발열) = 0.085
+                                </div>
+                                
+                                <p><strong>기침 속성에 대한 정보 이득:</strong></p>
+                                <p>기침 = 심함: 6개 데이터 중 '위험도=높음'은 5개, '위험도=낮음'은 1개<br>
+                                P(높음|기침=심함) = 5/6 ≈ 0.833, P(낮음|기침=심함) = 1/6 ≈ 0.167<br>
+                                Entropy(기침=심함) = -0.833 × log₂(0.833) - 0.167 × log₂(0.167) ≈ 0.650</p>
+                                
+                                <p>기침 = 가벼움: 5개 데이터 중 '위험도=높음'은 2개, '위험도=낮음'은 3개<br>
+                                P(높음|기침=가벼움) = 2/5 = 0.4, P(낮음|기침=가벼움) = 3/5 = 0.6<br>
+                                Entropy(기침=가벼움) = -0.4 × log₂(0.4) - 0.6 × log₂(0.6) ≈ 0.971</p>
+                                
+                                <p>기침 = 없음: 4개 데이터 중 '위험도=높음'은 0개, '위험도=낮음'은 4개<br>
+                                P(높음|기침=없음) = 0/4 = 0, P(낮음|기침=없음) = 4/4 = 1<br>
+                                Entropy(기침=없음) = -0 × log₂(0) - 1 × log₂(1) = 0</p>
+                                
+                                <div class="formula">
+                                    Gain(S, 기침) = Entropy(S) - [(6/15) × Entropy(기침=심함) + (5/15) × Entropy(기침=가벼움) + (4/15) × Entropy(기침=없음)]<br>
+                                    Gain(S, 기침) = 0.997 - [(6/15) × 0.650 + (5/15) × 0.971 + (4/15) × 0]<br>
+                                    Gain(S, 기침) = 0.997 - [0.260 + 0.324 + 0]<br>
+                                    Gain(S, 기침) = 0.997 - 0.584<br>
+                                    Gain(S, 기침) = 0.413
+                                </div>
+                                
+                                <p><strong>피로감 속성에 대한 정보 이득:</strong></p>
+                                <p>피로감 = 높음: 8개 데이터 중 '위험도=높음'은 6개, '위험도=낮음'은 2개<br>
+                                P(높음|피로감=높음) = 6/8 = 0.75, P(낮음|피로감=높음) = 2/8 = 0.25<br>
+                                Entropy(피로감=높음) = -0.75 × log₂(0.75) - 0.25 × log₂(0.25) ≈ 0.811</p>
+                                
+                                <p>피로감 = 낮음: 7개 데이터 중 '위험도=높음'은 1개, '위험도=낮음'은 6개<br>
+                                P(높음|피로감=낮음) = 1/7 ≈ 0.143, P(낮음|피로감=낮음) = 6/7 ≈ 0.857<br>
+                                Entropy(피로감=낮음) = -0.143 × log₂(0.143) - 0.857 × log₂(0.857) ≈ 0.591</p>
+                                
+                                <div class="formula">
+                                    Gain(S, 피로감) = Entropy(S) - [(8/15) × Entropy(피로감=높음) + (7/15) × Entropy(피로감=낮음)]<br>
+                                    Gain(S, 피로감) = 0.997 - [(8/15) × 0.811 + (7/15) × 0.591]<br>
+                                    Gain(S, 피로감) = 0.997 - [0.432 + 0.276]<br>
+                                    Gain(S, 피로감) = 0.997 - 0.708<br>
+                                    Gain(S, 피로감) = 0.289
+                                </div>
+                            </div>
+                            
+                            <div class="step" style="border-left-color: var(--medical);">
+                                <h4>3. 결정 규칙 작성</h4>
+                                <p>계산된 정보 이득을 정리하면 다음과 같습니다:</p>
+                                <ul>
+                                    <li>발열: 0.085</li>
+                                    <li>기침: 0.413</li>
+                                    <li>피로감: 0.289</li>
+                                </ul>
+                                <p>따라서, <span class="highlight">기침</span>이 가장 높은 정보 이득(0.413)을 가지므로, 결정 트리의 첫 번째 분할에 가장 적합한 속성입니다.</p>
+                                
+                                <p>기침 속성으로 분할했을 때의 하위 집합:</p>
+                                <ul>
+                                    <li>기침 = 심함: 6개 데이터 (위험도=높음: 5개, 위험도=낮음: 1개)</li>
+                                    <li>기침 = 가벼움: 5개 데이터 (위험도=높음: 2개, 위험도=낮음: 3개)</li>
+                                    <li>기침 = 없음: 4개 데이터 (위험도=높음: 0개, 위험도=낮음: 4개)</li>
+                                </ul>
+                                
+                                <p>이 결과를 바탕으로 다음과 같은 간단한 결정 규칙을 작성할 수 있습니다:</p>
+                                
+                                <ol>
+                                    <li>만약 <strong>기침 = 없음</strong>이면, 위험도는 <strong>낮음</strong>입니다. (100% 확실)</li>
+                                    <li>만약 <strong>기침 = 심함</strong>이면, 위험도는 <strong>높음</strong>입니다. (83.3% 확률)</li>
+                                    <li>만약 <strong>기침 = 가벼움</strong>이면, 추가 검사가 필요합니다:
+                                        <ul>
+                                            <li>피로감 속성으로 추가 분할했을 때:
+                                                <ul>
+                                                    <li>기침 = 가벼움 & 피로감 = 높음인 경우: 3개 데이터 중 위험도=높음은 2개 (66.7%)</li>
+                                                    <li>기침 = 가벼움 & 피로감 = 낮음인 경우: 2개 데이터 중 위험도=낮음은 2개 (100%)</li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ol>
+                                
+                                <p>따라서, 최종 결정 규칙은 다음과 같습니다:</p>
+                                
+                                <div class="formula">
+                                    1. 만약 기침 = 없음이면, 위험도 = 낮음<br>
+                                    2. 만약 기침 = 심함이면, 위험도 = 높음<br>
+                                    3. 만약 기침 = 가벼움이면:<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;a. 피로감 = 높음이면, 위험도 = 높음<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;b. 피로감 = 낮음이면, 위험도 = 낮음
+                                </div>
+                                
+                                <p>이 결정 규칙을 통해 새로운 환자의 증상을 바탕으로 질병의 위험도를 예측할 수 있습니다. 예를 들어, 기침이 없는 환자는 위험도가 낮고, 심한 기침이 있는 환자는 위험도가 높을 가능성이 크며, 가벼운 기침이 있는 환자는 피로감의 정도에 따라 위험도가 결정됩니다.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 문제 5: 주택 가격 범주 예측 -->
+            <div class="question-container" id="question5">
+                <div class="question-header" style="background-color: var(--house);">
+                    <h2>문제 5: 주택 가격 범주 예측</h2>
+                </div>
+                <div class="question-body">
+                    <p>부동산 중개업체에서 주택 특성을 바탕으로 주택 가격 범주를 예측하려고 합니다. 다음은 주택 데이터입니다.</p>
+                    
+                    <div class="data-table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>주택 ID</th>
+                                    <th>위치</th>
+                                    <th>크기</th>
+                                    <th>연식</th>
+                                    <th>가격 범주</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>도심</td>
+                                    <td>넓음</td>
+                                    <td>신축</td>
+                                    <td><span class="badge badge-warning">고가</span></td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>도심</td>
+                                    <td>넓음</td>
+                                    <td>구축</td>
+                                    <td><span class="badge badge-warning">고가</span></td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>도심</td>
+                                    <td>좁음</td>
+                                    <td>신축</td>
+                                    <td><span class="badge badge-warning">고가</span></td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>도심</td>
+                                    <td>좁음</td>
+                                    <td>구축</td>
+                                    <td><span class="badge badge-primary">중가</span></td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td>교외</td>
+                                    <td>넓음</td>
+                                    <td>신축</td>
+                                    <td><span class="badge badge-warning">고가</span></td>
+                                </tr>
+                                <tr>
+                                    <td>6</td>
+                                    <td>교외</td>
+                                    <td>넓음</td>
+                                    <td>구축</td>
+                                    <td><span class="badge badge-primary">중가</span></td>
+                                </tr>
+                                <tr>
+                                    <td>7</td>
+                                    <td>교외</td>
+                                    <td>좁음</td>
+                                    <td>신축</td>
+                                    <td><span class="badge badge-primary">중가</span></td>
+                                </tr>
+                                <tr>
+                                    <td>8</td>
+                                    <td>교외</td>
+                                    <td>좁음</td>
+                                    <td>구축</td>
+                                    <td><span class="badge badge-success">저가</span></td>
+                                </tr>
+                                <tr>
+                                    <td>9</td>
+                                    <td>외곽</td>
+                                    <td>넓음</td>
+                                    <td>신축</td>
+                                    <td><span class="badge badge-primary">중가</span></td>
+                                </tr>
+                                <tr>
+                                    <td>10</td>
+                                    <td>외곽</td>
+                                    <td>넓음</td>
+                                    <td>구축</td>
+                                    <td><span class="badge badge-success">저가</span></td>
+                                </tr>
+                                <tr>
+                                    <td>11</td>
+                                    <td>외곽</td>
+                                    <td>좁음</td>
+                                    <td>신축</td>
+                                    <td><span class="badge badge-success">저가</span></td>
+                                </tr>
+                                <tr>
+                                    <td>12</td>
+                                    <td>외곽</td>
+                                    <td>좁음</td>
+                                    <td>구축</td>
+                                    <td><span class="badge badge-success">저가</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="question-list">
+                        <p>1. 전체 데이터 집합의 엔트로피를 계산하세요.</p>
+                        <p>2. 각 속성(위치, 크기, 연식)에 대한 정보 이득을 계산하세요.</p>
+                        <p>3. 결정 트리를 이용한 분류 모델을 구성하고, '교외, 넓음, 신축' 특성을 가진 새로운 주택의 가격 범주를 예측하세요.</p>
+                    </div>
+                    
+                    <div class="btn-container">
+                        <button class="btn" style="background-color: var(--house);" onclick="toggleAnswer(this)">답안 보기</button>
+                    </div>
+                    
+                    <div class="answer" id="answer5" style="background-color: var(--house-light); border-left-color: var(--house);">
+                        <div class="answer-header" style="background-color: var(--house);">
+                            <h3>답안 및 해설</h3>
+                        </div>
+                        <div class="answer-body">
+                            <div class="step" style="border-left-color: var(--house);">
+                                <h4>1. 전체 데이터 집합의 엔트로피 계산</h4>
+                                <p>전체 12개의 데이터에서 '가격 범주=고가'는 4개, '가격 범주=중가'는 4개, '가격 범주=저가'는 4개입니다.</p>
+                                <p>P(고가) = 4/12 = 0.333, P(중가) = 4/12 = 0.333, P(저가) = 4/12 = 0.333</p>
+                                <div class="formula">
+                                    Entropy(S) = -0.333 × log₂(0.333) - 0.333 × log₂(0.333) - 0.333 × log₂(0.333)<br>
+                                    Entropy(S) = -0.333 × (-1.585) - 0.333 × (-1.585) - 0.333 × (-1.585)<br>
+                                    Entropy(S) = 0.528 + 0.528 + 0.528<br>
+                                    Entropy(S) = 1.585
+                                </div>
+                                <p>따라서, 전체 데이터 집합의 엔트로피는 1.585입니다. 이는 세 개의 클래스가 완전히 균등하게 분포되어 있어 불확실성이 최대임을 의미합니다.</p>
+                            </div>
+                            
+                            <div class="step" style="border-left-color: var(--house);">
+                                <h4>2. 각 속성에 대한 정보 이득 계산</h4>
+                                
+                                <p><strong>위치 속성에 대한 정보 이득:</strong></p>
+                                <p>위치 = 도심: 4개 데이터 중 '고가'는 3개, '중가'는 1개, '저가'는 0개<br>
+                                P(고가|도심) = 3/4 = 0.75, P(중가|도심) = 1/4 = 0.25, P(저가|도심) = 0/4 = 0<br>
+                                Entropy(도심) = -0.75 × log₂(0.75) - 0.25 × log₂(0.25) - 0 × log₂(0) ≈ 0.811</p>
+                                
+                                <p>위치 = 교외: 4개 데이터 중 '고가'는 1개, '중가'는 2개, '저가'는 1개<br>
+                                P(고가|교외) = 1/4 = 0.25, P(중가|교외) = 2/4 = 0.5, P(저가|교외) = 1/4 = 0.25<br>
+                                Entropy(교외) = -0.25 × log₂(0.25) - 0.5 × log₂(0.5) - 0.25 × log₂(0.25) ≈ 1.5</p>
+                                
+                                <p>위치 = 외곽: 4개 데이터 중 '고가'는 0개, '중가'는 1개, '저가'는 3개<br>
+                                P(고가|외곽) = 0/4 = 0, P(중가|외곽) = 1/4 = 0.25, P(저가|외곽) = 3/4 = 0.75<br>
+                                Entropy(외곽) = -0 × log₂(0) - 0.25 × log₂(0.25) - 0.75 × log₂(0.75) ≈ 0.811</p>
+                                
+                                <div class="formula">
+                                    Gain(S, 위치) = Entropy(S) - [(4/12) × Entropy(도심) + (4/12) × Entropy(교외) + (4/12) × Entropy(외곽)]<br>
+                                    Gain(S, 위치) = 1.585 - [(4/12) × 0.811 + (4/12) × 1.5 + (4/12) × 0.811]<br>
+                                    Gain(S, 위치) = 1.585 - [0.270 + 0.5 + 0.270]<br>
+                                    Gain(S, 위치) = 1.585 - 1.04<br>
+                                    Gain(S, 위치) = 0.545
+                                </div>
+                                
+                                <p><strong>크기 속성에 대한 정보 이득:</strong></p>
+                                <p>크기 = 넓음: 6개 데이터 중 '고가'는 4개, '중가'는 1개, '저가'는 1개<br>
+                                P(고가|넓음) = 4/6 ≈ 0.667, P(중가|넓음) = 1/6 ≈ 0.167, P(저가|넓음) = 1/6 ≈ 0.167<br>
+                                Entropy(넓음) = -0.667 × log₂(0.667) - 0.167 × log₂(0.167) - 0.167 × log₂(0.167) ≈ 1.251</p>
+                                
+                                <p>크기 = 좁음: 6개 데이터 중 '고가'는 0개, '중가'는 3개, '저가'는 3개<br>
+                                P(고가|좁음) = 0/6 = 0, P(중가|좁음) = 3/6 = 0.5, P(저가|좁음) = 3/6 = 0.5<br>
+                                Entropy(좁음) = -0 × log₂(0) - 0.5 × log₂(0.5) - 0.5 × log₂(0.5) = 1</p>
+                                
+                                <div class="formula">
+                                    Gain(S, 크기) = Entropy(S) - [(6/12) × Entropy(넓음) + (6/12) × Entropy(좁음)]<br>
+                                    Gain(S, 크기) = 1.585 - [(6/12) × 1.251 + (6/12) × 1]<br>
+                                    Gain(S, 크기) = 1.585 - [0.626 + 0.5]<br>
+                                    Gain(S, 크기) = 1.585 - 1.126<br>
+                                    Gain(S, 크기) = 0.459
+                                </div>
+                                
+                                <p><strong>연식 속성에 대한 정보 이득:</strong></p>
+                                <p>연식 = 신축: 6개 데이터 중 '고가'는 4개, '중가'는 2개, '저가'는 0개<br>
+                                P(고가|신축) = 4/6 ≈ 0.667, P(중가|신축) = 2/6 ≈ 0.333, P(저가|신축) = 0/6 = 0<br>
+                                Entropy(신축) = -0.667 × log₂(0.667) - 0.333 × log₂(0.333) - 0 × log₂(0) ≈ 0.918</p>
+                                
+                                <p>연식 = 구축: 6개 데이터 중 '고가'는 0개, '중가'는 2개, '저가'는 4개<br>
+                                P(고가|구축) = 0/6 = 0, P(중가|구축) = 2/6 ≈ 0.333, P(저가|구축) = 4/6 ≈ 0.667<br>
+                                Entropy(구축) = -0 × log₂(0) - 0.333 × log₂(0.333) - 0.667 × log₂(0.667) ≈ 0.918</p>
+                                
+                                <div class="formula">
+                                    Gain(S, 연식) = Entropy(S) - [(6/12) × Entropy(신축) + (6/12) × Entropy(구축)]<br>
+                                    Gain(S, 연식) = 1.585 - [(6/12) × 0.918 + (6/12) × 0.918]<br>
+                                    Gain(S, 연식) = 1.585 - [0.459 + 0.459]<br>
+                                    Gain(S, 연식) = 1.585 - 0.918<br>
+                                    Gain(S, 연식) = 0.667
+                                </div>
+                            </div>
+                            
+                            <div class="step" style="border-left-color: var(--house);">
+                                <h4>3. 결정 트리 구성 및 예측</h4>
+                                <p>계산된 정보 이득을 정리하면 다음과 같습니다:</p>
+                                <ul>
+                                    <li>위치: 0.545</li>
+                                    <li>크기: 0.459</li>
+                                    <li>연식: 0.667</li>
+                                </ul>
+                                <p>따라서, <span class="highlight">연식</span>이 가장 높은 정보 이득(0.667)을 가지므로, 결정 트리의 첫 번째 분할에 가장 적합한 속성입니다.</p>
+                                
+                                <p>첫 번째 분할 후 하위 집합:</p>
+                                <ul>
+                                    <li>연식 = 신축: 6개 데이터 (고가: 4개, 중가: 2개, 저가: 0개)</li>
+                                    <li>연식 = 구축: 6개 데이터 (고가: 0개, 중가: 2개, 저가: 4개)</li>
+                                </ul>
+                                
+                                <p>두 번째 레벨의 분할을 위해, 각 하위 집합에 대해 추가 속성에 대한 정보 이득을 계산합니다.</p>
+                                
+                                <p><strong>'연식 = 신축' 하위 집합에 대한 정보 이득 계산:</strong></p>
+                                
+                                <p>위치 속성 정보 이득 계산 결과 ≈ 0.459<br>
+                                크기 속성 정보 이득 계산 결과 ≈ 0.252</p>
+                                
+                                <p>따라서, '연식 = 신축' 하위 집합에서는 <span class="highlight">위치</span>가 가장 높은 정보 이득을 가집니다.</p>
+                                
+                                <p><strong>'연식 = 구축' 하위 집합에 대한 정보 이득 계산:</strong></p>
+                                
+                                <p>위치 속성 정보 이득 계산 결과 ≈ 0.459<br>
+                                크기 속성 정보 이득 계산 결과 ≈ 0.252</p>
+                                
+                                <p>따라서, '연식 = 구축' 하위 집합에서도 <span class="highlight">위치</span>가 가장 높은 정보 이득을 가집니다.</p>
+                                
+                                <p>이 결과를 바탕으로 다음과 같은 결정 트리를 구성할 수 있습니다:</p>
+                                
+                                <div class="formula">
+                                    1. 루트 노드: 연식<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;a. 연식 = 신축:<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i. 위치 = 도심 → 고가 (3/3)<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ii. 위치 = 교외 → 고가 또는 중가 (1/1 고가, 1/1 중가)<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;iii. 위치 = 외곽 → 중가 또는 저가 (1/1 중가, 1/1 저가)<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;b. 연식 = 구축:<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i. 위치 = 도심 → 고가 또는 중가 (1/1 고가, 1/1 중가)<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ii. 위치 = 교외 → 중가 또는 저가 (1/1 중가, 1/1 저가)<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;iii. 위치 = 외곽 → 저가 (2/2)
+                                </div>
+                                
+                                <p>추가 분할이 필요한 노드에 대해 크기 속성으로 더 세분화할 수 있지만, 일부 하위 집합의 데이터가 매우 적어 통계적으로 유의미한 결론을 내리기 어렵습니다.</p>
+                                
+                                <p>이제 '교외, 넓음, 신축' 특성을 가진 새로운 주택의 가격 범주를 예측해 보겠습니다:</p>
+                                
+                                <ol>
+                                    <li>첫 번째로, 연식을 확인합니다: 신축</li>
+                                    <li>두 번째로, 위치를 확인합니다: 교외</li>
+                                    <li>세 번째로, 교외에 위치한 신축 주택에 대한 데이터를 확인합니다:
+                                        <ul>
+                                            <li>데이터셋에서 '교외, 신축'인 주택은 2개가 있습니다:
+                                                <ul>
+                                                    <li>ID 5: '교외, 넓음, 신축' → 고가</li>
+                                                    <li>ID 7: '교외, 좁음, 신축' → 중가</li>
+                                                </ul>
+                                            </li>
+                                            <li>우리가 예측하려는 주택은 '교외, 넓음, 신축'이므로, ID 5와 정확히 일치합니다.</li>
+                                        </ul>
+                                    </li>
+                                </ol>
+                                
+                                <p>따라서, '교외, 넓음, 신축' 특성을 가진 새로운 주택의 가격 범주는 <span class="highlight">고가</span>로 예측됩니다.</p>
+                                
+                                <p>이 예제는 주택 가격이 주로 연식, 위치, 크기 순으로 영향을 받는다는 것을 보여줍니다. 특히 신축 주택은 대부분 고가나 중가이고, 구축 주택은 중가나 저가인 경향이 있으며, 도심에 위치한 주택은 교외나 외곽보다 더 비싼 경향이 있습니다.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <script>
+          // 답안 토글 함수
+          function toggleAnswer(button) {
+              const answer = button.parentElement.nextElementSibling;
+              
+              if (answer.style.display === "block") {
+                  // 답안 닫기
+                  button.textContent = "답안 보기";
+                  answer.classList.remove('visible');
+                  
+                  // 트랜지션 효과가 끝난 후 display를 none으로 변경
+                  setTimeout(() => {
+                      answer.style.display = "none";
+                  }, 300); // CSS transition 시간과 맞춰줌
+              } else {
+                  // 답안 열기
+                  answer.style.display = "block";
+                  button.textContent = "답안 닫기";
+                  
+                  // 약간의 지연 후 클래스 추가 (트랜지션 효과 적용)
+                  setTimeout(() => {
+                      answer.classList.add('visible');
+                  }, 10);
+              }
+          }
+          
+          // 진행 단계 업데이트 함수
+          document.addEventListener('DOMContentLoaded', function() {
+              const progressSteps = document.querySelectorAll('.progress-step');
+              let currentStep = 0;
+              
+              // 초기 상태 설정
+              updateProgress(currentStep);
+    
+              // 각 문제 컨테이너에 클릭 이벤트 추가 - 전체 컨테이너가 아닌 헤더 부분만 클릭 가능하도록 수정
+              const questionHeaders = document.querySelectorAll('.question-header');
+              questionHeaders.forEach((header, index) => {
+                  header.addEventListener('click', function(e) {
+                      // 이벤트 버블링 방지
+                      e.stopPropagation();
+                      currentStep = index;
+                      updateProgress(currentStep);
+                      
+                      // 해당 문제로 스크롤
+                      const container = header.closest('.question-container');
+                      container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                  });
+                  header.style.cursor = 'pointer';
+              });
+              
+              function updateProgress(step) {
+                  progressSteps.forEach((stepElem, index) => {
+                      if (index <= step) {
+                          stepElem.classList.add('active');
+                      } else {
+                          stepElem.classList.remove('active');
+                      }
+                  });
+              }
+              progressSteps.forEach((step, index) => {
+                step.style.cursor = 'pointer';
+                step.addEventListener('click', function() {
+                    currentStep = index;
+                    updateProgress(currentStep);
+                    
+                    // 해당 문제로 스크롤
+                    const targetQuestion = document.querySelectorAll('.question-container')[index];
+                    if (targetQuestion) {
+                        targetQuestion.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+          });
+      </script>
+    </body>
+</html>
