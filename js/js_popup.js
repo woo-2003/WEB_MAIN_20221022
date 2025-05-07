@@ -71,6 +71,16 @@ function over(obj) {
 function out(obj) {
   obj.src="image/popuplollogo.png";
 }
+
+
+function closePopup() {
+  if (document.getElementById('check_popup').value) {
+    setCookie("popupYN", "N", 1);
+    console.log("쿠키를 설정합니다.");
+    self.close();
+  }
+}
+  
 // const over = (obj) => {
 //   obj.src = "image/LOGO.png";
 // };
