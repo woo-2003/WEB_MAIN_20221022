@@ -16,17 +16,10 @@ function init(){ // 로그인 폼에 쿠키에서 가져온 아이디 입력
 
 document.addEventListener('DOMContentLoaded', () => 
   {
-    init();
+    checkAuth();
+    init_logined();
   }
 );
-function init_logined(){
-  if(sessionStorage){
-    decrypt_text(); // 복호화 함수
-  }
-  else{
-    lert("세션 스토리지 지원 x");
-  }
-}
 
   
 
@@ -160,7 +153,14 @@ if(idsave_check.checked == true) { // 아이디 체크 o
   loginForm.submit();
 };
 
-document.getElementById("login_btn").addEventListener('click', check_input);
+document.getElementById("logout_btn").addEventListener('click', check_input);
 
-
+function init_logined(){
+if(sessionStorage){
+decrypt_text(); // 복호화 함수
+}
+else{
+alert("세션 스토리지 지원 x");
+}
+}
 
