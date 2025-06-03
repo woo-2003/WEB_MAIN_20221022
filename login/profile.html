@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>실습4주차</title>
+    <title>Profile_WEB_MAIN_20221022</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <meta name="author" content="20221022">
     <meta name="keywords" content="computer">
@@ -17,16 +17,18 @@
       caption {
         color: white;;
       }
+      #map {
+        width: 100%;
+        height: 400px;
+        margin: 20px 0;
+      }
     </style>
-
-    <!-- 상대경로 = 파일에서 불러옴 -->
-    <!-- <script type="text/javascript" src="js/js_test.js"></script>
-    <script type="text/javascript" defer src="js/js_popup.js"></script> -->
+    <!-- 카카오맵 스크립트를 먼저 로드 -->
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=62e13c9ec005e25d307da9a618dc65ae&libraries=services,clusterer,drawing"></script>
+    <!-- 그 다음 다른 스크립트 로드 -->
     <script type="text/javascript" defer src="js/js_search.js"></script>
-    <script type="text/javascript" defer src="js/maps.js"></script>
-    <!-- 절대경로 = 도메인, 서버주소에서 불러옴 -->
+    <script type="text/javascript" defer src="js/map.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script defer type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=62e13c9ec005e25d307da9a618dc65ae&libraries=services,clusterer,drawing"></script>
   
   </head>
   <body style="background-color: black;">
@@ -96,11 +98,11 @@
             <div class="col-lg-4">
               <div class="card mb-4">
                 <div class="card-body text-center">
-                  <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp" alt="avatar"
+                  <img src="https://i.postimg.cc/fysr9hfM/image.png" alt="avatar"
                     class="rounded-circle img-fluid" style="width: 150px;">
                   <h5 class="my-3">WOOYOUMG JUNG</h5>
-                  <p class="text-muted mb-1">Full Stack Developer</p>
-                  <p class="text-muted mb-4">BUCHONE-si, GEONGKI-do, KOREA</p>
+                  <p class="text-muted mb-1">대학생</p>
+                  <p class="text-muted mb-4">성결대학교 미디어소프트웨어학과</p>
                   <div class="d-flex justify-content-center mb-2">
                     <button  type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary">Follow</button>
                     <button  type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-primary ms-1">Message</button>
@@ -112,23 +114,26 @@
                   <ul class="list-group list-group-flush rounded-3">
                     <li class="list-group-item d-flex justify-content-between align-items-center p-3">
                       <i class="fas fa-globe fa-lg text-warning"></i>
-                      <p class="mb-0">https://mdbootstrap.com</p>
+                      <p class="mb-0">https://www.instagram.com/woo__.0/</p>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center p-3">
                       <i class="fab fa-github fa-lg text-body"></i>
-                      <p class="mb-0">mdbootstrap</p>
+                      <p class="mb-0">2025~ 성결대학교 미디어소프트웨어학과 복학</p>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center p-3">
                       <i class="fab fa-twitter fa-lg" style="color: #55acee;"></i>
-                      <p class="mb-0">@mdbootstrap</p>
+                      <p class="mb-0">2025~ 멀티에이전트 ai "AI OING" 개발</p>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center p-3">
                       <i class="fab fa-instagram fa-lg" style="color: #ac2bac;"></i>
-                      <p class="mb-0">mdbootstrap</p>
+                      <p class="mb-0">2023~"SWIM C&C 마케팅" 운영</p>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center p-3">
                       <i class="fab fa-facebook-f fa-lg" style="color: #3b5998;"></i>
-                      <p class="mb-0">mdbootstrap</p>
+                      <p class="mb-0">2022~"THE REIN" 메니지먼트 서비스 개발</p>
+                    <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                      <i class="fab fa-facebook-f fa-lg" style="color: #3b5998;"></i>
+                      <p class="mb-0">2021~ "B1B STRIKE" brunswick 핀세터 엔지니어</p>  
                     </li>
                   </ul>
                 </div>
@@ -151,7 +156,7 @@
                       <p class="mb-0">Email</p>
                     </div>
                     <div class="col-sm-9">
-                      <p class="text-muted mb-0">example@example.com</p>
+                      <p class="text-muted mb-0">wyjung411@gmail.com</p>
                     </div>
                   </div>
                   <hr>
@@ -160,7 +165,7 @@
                       <p class="mb-0">Phone</p>
                     </div>
                     <div class="col-sm-9">
-                      <p class="text-muted mb-0">(097) 234-5678</p>
+                      <p class="text-muted mb-0">(010) 0000-0000</p>
                     </div>
                   </div>
                   <hr>
@@ -169,7 +174,7 @@
                       <p class="mb-0">Mobile</p>
                     </div>
                     <div class="col-sm-9">
-                      <p class="text-muted mb-0">(098) 765-4321</p>
+                      <p class="text-muted mb-0">(010) 0000-0000</p>
                     </div>
                   </div>
                   <hr>
@@ -183,78 +188,72 @@
                   </div>
                 </div>
               </div>
-              <div class="row">
+                <class="row">
                 <div class="col-md-6">
                   <div class="card mb-4 mb-md-0">
                     <div class="card-body">
-                      <p class="mb-4"><span class="text-primary font-italic me-1">assigment</span> Project Status
-                      </p>
-                      <p class="mb-1" style="font-size: .77rem;">Web Design</p>
-                      <div class="progress rounded" style="height: 5px;">
-                        <div class="progress-bar" role="progressbar" style="width: 80%" aria-valuenow="80"
-                          aria-valuemin="0" aria-valuemax="100"></div>
-                      </div>
-                      <p class="mt-4 mb-1" style="font-size: .77rem;">Website Markup</p>
-                      <div class="progress rounded" style="height: 5px;">
-                        <div class="progress-bar" role="progressbar" style="width: 72%" aria-valuenow="72"
-                          aria-valuemin="0" aria-valuemax="100"></div>
-                      </div>
-                      <p class="mt-4 mb-1" style="font-size: .77rem;">One Page</p>
-                      <div class="progress rounded" style="height: 5px;">
-                        <div class="progress-bar" role="progressbar" style="width: 89%" aria-valuenow="89"
-                          aria-valuemin="0" aria-valuemax="100"></div>
-                      </div>
-                      <p class="mt-4 mb-1" style="font-size: .77rem;">Mobile Template</p>
-                      <div class="progress rounded" style="height: 5px;">
-                        <div class="progress-bar" role="progressbar" style="width: 55%" aria-valuenow="55"
-                          aria-valuemin="0" aria-valuemax="100"></div>
-                      </div>
-                      <p class="mt-4 mb-1" style="font-size: .77rem;">Backend API</p>
+                      <h4 class="mb-4">풀스택 개발자 로드맵</h4>
+                      <p class="mt-4 mb-1" style="font-size: .77rem;">프론트엔드 (HTML, CSS, JavaScript)</p>
                       <div class="progress rounded mb-2" style="height: 5px;">
-                        <div class="progress-bar" role="progressbar" style="width: 66%" aria-valuenow="66"
-                          aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar" role="progressbar" style="width: 90%" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+
+                      <p class="mt-4 mb-1" style="font-size: .77rem;">백엔드 (Node.js, Express)</p>
+                      <div class="progress rounded mb-2" style="height: 5px;">
+                        <div class="progress-bar" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+
+                      <p class="mt-4 mb-1" style="font-size: .77rem;">데이터베이스 (MySQL, MongoDB)</p>
+                      <div class="progress rounded mb-2" style="height: 5px;">
+                        <div class="progress-bar" role="progressbar" style="width: 80%" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+
+                      <p class="mt-4 mb-1" style="font-size: .77rem;">DevOps (Git, Docker)</p>
+                      <div class="progress rounded mb-2" style="height: 5px;">
+                        <div class="progress-bar" role="progressbar" style="width: 65%" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
                       </div>
                     </div>
                   </div>
                 </div>
+
                 <div class="col-md-6">
                   <div class="card mb-4 mb-md-0">
                     <div class="card-body">
-                      <p class="mb-4"><span class="text-primary font-italic me-1">assigment</span> Project Status
-                      </p>
-                      <p class="mb-1" style="font-size: .77rem;">Web Design</p>
-                      <div class="progress rounded" style="height: 5px;">
-                        <div class="progress-bar" role="progressbar" style="width: 80%" aria-valuenow="80"
-                          aria-valuemin="0" aria-valuemax="100"></div>
-                      </div>
-                      <p class="mt-4 mb-1" style="font-size: .77rem;">Website Markup</p>
-                      <div class="progress rounded" style="height: 5px;">
-                        <div class="progress-bar" role="progressbar" style="width: 72%" aria-valuenow="72"
-                          aria-valuemin="0" aria-valuemax="100"></div>
-                      </div>
-                      <p class="mt-4 mb-1" style="font-size: .77rem;">One Page</p>
-                      <div class="progress rounded" style="height: 5px;">
-                        <div class="progress-bar" role="progressbar" style="width: 89%" aria-valuenow="89"
-                          aria-valuemin="0" aria-valuemax="100"></div>
-                      </div>
-                      <p class="mt-4 mb-1" style="font-size: .77rem;">Mobile Template</p>
-                      <div class="progress rounded" style="height: 5px;">
-                        <div class="progress-bar" role="progressbar" style="width: 55%" aria-valuenow="55"
-                          aria-valuemin="0" aria-valuemax="100"></div>
-                      </div>
-                      <p class="mt-4 mb-1" style="font-size: .77rem;">Backend API</p>
+                      <h4 class="mb-4">AI 엔지니어 로드맵</h4>
+                      <p class="mt-4 mb-1" style="font-size: .77rem;">머신러닝 기초 (Python, NumPy, Pandas)</p>
                       <div class="progress rounded mb-2" style="height: 5px;">
-                        <div class="progress-bar" role="progressbar" style="width: 66%" aria-valuenow="66"
-                          aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+
+                      <p class="mt-4 mb-1" style="font-size: .77rem;">딥러닝 (TensorFlow, PyTorch)</p>
+                      <div class="progress rounded mb-2" style="height: 5px;">
+                        <div class="progress-bar" role="progressbar" style="width: 70%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+
+                      <p class="mt-4 mb-1" style="font-size: .77rem;">데이터 전처리 및 분석</p>
+                      <div class="progress rounded mb-2" style="height: 5px;">
+                        <div class="progress-bar" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+
+                      <p class="mt-4 mb-1" style="font-size: .77rem;">AI 모델 배포 및 최적화</p>
+                      <div class="progress rounded mb-2" style="height: 5px;">
+                        <div class="progress-bar" role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
                       </div>
                     </div>
                   </div>
                 </div>
                 <br>
                 <hr>
-                <div id="map" style="width:800px;height:400px;"></div>
-                <p><em>지도를 클릭해주세요!</em></p>
-                <div id="clickLatlng"></div>
+                <div class="card mb-4">
+                  <div class="card-body">
+                    <h4 class="mb-4">위치 정보</h4>
+                    <div id="map"></div>
+                    <div class="map-info-container">
+                      <p class="mt-2"><em>지도를 클릭하면 해당 위치의 주소와 좌표가 표시됩니다.</em></p>
+                      <div id="clickLatlng" class="address-result"></div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
