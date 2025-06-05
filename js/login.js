@@ -232,8 +232,8 @@ export async function check_input() {
         reset_login_fail_count();
         login_count();
         
-        // 로그인 성공 후 리다이렉트
-        window.location.href = "index_login.html";
+        // 로그인 성공 후 리다이렉트 (절대 경로 사용)
+        window.location.href = "https://woo-2003.github.io/WEB_MAIN_20221022/login/index_login.html";
         return false;
         
     } catch (error) {
