@@ -1,4 +1,4 @@
-import { startSession, checkSession, handleSessionExpiration, setSessionData, getSessionData, encryptSessionData, decryptSessionData } from './session.js';
+import { startSession, checkSession, handleSessionExpiration, setSessionData, getSessionData, encryptSessionData, decryptSessionData, deleteSession } from './session.js';
 import { encryptText, decryptText } from './js_crypto.js';
 import { generateToken, verifyToken } from './js_jwt_token.js';
 
