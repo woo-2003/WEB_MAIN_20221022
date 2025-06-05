@@ -45,7 +45,12 @@ export async function generateToken(payload) {
         );
         
         // 4. 최종 토큰 조합
-        return `${encodedHeader}.${encodedPayload}.${signature}`;
+        const token = `${encodedHeader}.${encodedPayload}.${signature}`;
+        
+        // 5. 토큰 저장
+        localStorage.setItem('jwt_token', token);
+        
+        return token;
     } catch (error) {
         console.error('JWT 생성 중 오류:', error);
         throw error;
@@ -74,6 +79,7 @@ export async function verifyToken(token) {
         
         if (payload.exp < Math.floor(Date.now() / 1000)) {
             console.log('보안 토큰이 만료되었습니다');
+            localStorage.removeItem('jwt_token');
             return null;
         }
         

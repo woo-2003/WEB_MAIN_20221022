@@ -97,7 +97,20 @@ export function init() {
 
 // XSS 방지 함수
 function sanitizeInput(input) {
-    return DOMPurify.sanitize(input);
+    if (!input) return '';
+    
+    const DOMPurify = window.DOMPurify;
+    if (!DOMPurify) {
+        console.error('DOMPurify가 로드되지 않았습니다.');
+        return input;
+    }
+    
+    const sanitizedInput = DOMPurify.sanitize(input);
+    if (sanitizedInput !== input) {
+        console.warn('XSS 공격 가능성이 있는 입력값이 발견되었습니다.');
+    }
+    
+    return sanitizedInput;
 }
 
 // 쿠키 설정
@@ -152,8 +165,19 @@ export async function check_input() {
     }
 
     // 비밀번호 검증
-    if (password.length < 6) {
-        alert('비밀번호는 최소 6자 이상이어야 합니다.');
+    if (password.length < 12) {
+        alert('비밀번호는 12자 이상이어야 합니다.');
+        login_failed();
+        return false;
+    }
+
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+
+    if (!hasSpecialChar || !hasUpperCase || !hasLowerCase || !hasNumbers) {
+        alert('비밀번호는 대문자, 소문자, 숫자, 특수문자를 모두 포함해야 합니다.');
         login_failed();
         return false;
     }
@@ -169,7 +193,7 @@ export async function check_input() {
             loginTime: Date.now()
         };
         
-        const encryptedData = await encrypt(JSON.stringify(sessionData));
+        const encryptedData = await encryptText(JSON.stringify(sessionData));
         await setSessionData(encryptedData);
         
         // 아이디 저장 처리
