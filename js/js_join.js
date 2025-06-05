@@ -13,7 +13,7 @@ async function join(){ // 회원가입 기능
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const pwRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
 
-  form.action = "../index.html"; // 로그인 성공 시 이동
+  form.action = "https://woo-2003.github.io/WEB_MAIN_20221022/index.html"; // 로그인 성공 시 이동
   form.method = "get"; // 전송 방식
 
   // 이름 검사
