@@ -1,93 +1,118 @@
-// JWT 비밀 키 (실제 운영 환경에서는 복잡한 키 사용 필수)
-const JWT_SECRET = "your_secret_key_here";
+// JWT 시크릿 키
+const SECRET_KEY = 'your-secret-key';
 
-// HMAC-SHA256 서명 생성 함수
+// HMAC-SHA256 서명 생성
 async function createSignature(data, key) {
+  try {
     const encoder = new TextEncoder();
     const keyData = encoder.encode(key);
     const messageData = encoder.encode(data);
     
-    const cryptoKey = await window.crypto.subtle.importKey(
-        'raw',
-        keyData,
-        { name: 'HMAC', hash: 'SHA-256' },
-        false,
-        ['sign']
+    const cryptoKey = await crypto.subtle.importKey(
+      'raw',
+      keyData,
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['sign']
     );
     
-    const signature = await window.crypto.subtle.sign(
-        'HMAC',
-        cryptoKey,
-        messageData
+    const signature = await crypto.subtle.sign(
+      'HMAC',
+      cryptoKey,
+      messageData
     );
     
-    return btoa(String.fromCharCode(...new Uint8Array(signature)));
+    return btoa(String.fromCharCode.apply(null, new Uint8Array(signature)));
+  } catch (error) {
+    console.error('서명 생성 중 오류:', error);
+    throw new Error('서명 생성 실패');
+  }
 }
 
 // JWT 토큰 생성
 export async function generateToken(payload) {
-    try {
-        // 1. 헤더 생성 및 Base64 인코딩
-        const header = { alg: "HS256", typ: "JWT" };
-        const encodedHeader = btoa(JSON.stringify(header));
-        
-        // 2. 페이로드에 만료 시간 추가
-        const tokenPayload = {
-            ...payload,
-            exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1시간
-        };
-        const encodedPayload = btoa(JSON.stringify(tokenPayload));
-        
-        // 3. 서명 생성
-        const signature = await createSignature(
-            `${encodedHeader}.${encodedPayload}`,
-            JWT_SECRET
-        );
-        
-        // 4. 최종 토큰 조합
-        const token = `${encodedHeader}.${encodedPayload}.${signature}`;
-        
-        // 5. 토큰 저장
-        localStorage.setItem('jwt_token', token);
-        
-        return token;
-    } catch (error) {
-        console.error('JWT 생성 중 오류:', error);
-        throw error;
-    }
+  try {
+    const header = {
+      alg: 'HS256',
+      typ: 'JWT'
+    };
+    
+    const now = Math.floor(Date.now() / 1000);
+    const exp = payload.exp || now + 3600; // 기본 1시간
+    
+    const finalPayload = {
+      ...payload,
+      iat: now,
+      exp: exp
+    };
+    
+    const encodedHeader = btoa(JSON.stringify(header));
+    const encodedPayload = btoa(JSON.stringify(finalPayload));
+    
+    const signature = await createSignature(
+      `${encodedHeader}.${encodedPayload}`,
+      SECRET_KEY
+    );
+    
+    return `${encodedHeader}.${encodedPayload}.${signature}`;
+  } catch (error) {
+    console.error('토큰 생성 중 오류:', error);
+    throw new Error('토큰 생성 실패');
+  }
 }
 
 // JWT 토큰 검증
 export async function verifyToken(token) {
-    try {
-        // 1. 토큰을 헤더, 페이로드, 서명으로 분할
-        const parts = token.split('.');
-        if (parts.length !== 3) return null;
-        
-        const [encodedHeader, encodedPayload, encodedSignature] = parts;
-        
-        // 2. 서명 재계산 및 비교
-        const calculatedSignature = await createSignature(
-            `${encodedHeader}.${encodedPayload}`,
-            JWT_SECRET
-        );
-        
-        if (calculatedSignature !== encodedSignature) return null;
-        
-        // 3. 페이로드 파싱 및 만료 시간 검증
-        const payload = JSON.parse(atob(encodedPayload));
-        
-        if (payload.exp < Math.floor(Date.now() / 1000)) {
-            console.log('보안 토큰이 만료되었습니다');
-            localStorage.removeItem('jwt_token');
-            return null;
-        }
-        
-        return payload;
-    } catch (error) {
-        console.error('JWT 검증 중 오류:', error);
-        return null;
+  try {
+    if (!token) {
+      throw new Error('토큰이 없습니다.');
     }
+    
+    const [encodedHeader, encodedPayload, signature] = token.split('.');
+    
+    // 서명 검증
+    const expectedSignature = await createSignature(
+      `${encodedHeader}.${encodedPayload}`,
+      SECRET_KEY
+    );
+    
+    if (signature !== expectedSignature) {
+      throw new Error('서명이 일치하지 않습니다.');
+    }
+    
+    // 페이로드 디코딩
+    const payload = JSON.parse(atob(encodedPayload));
+    
+    // 만료 시간 검증
+    const now = Math.floor(Date.now() / 1000);
+    if (payload.exp < now) {
+      throw new Error('토큰이 만료되었습니다.');
+    }
+    
+    return payload;
+  } catch (error) {
+    console.error('토큰 검증 중 오류:', error);
+    return null;
+  }
+}
+
+// JWT 토큰에서 사용자 정보 추출
+export function getUserFromToken(token) {
+  try {
+    if (!token) return null;
+    
+    const [, encodedPayload] = token.split('.');
+    const payload = JSON.parse(atob(encodedPayload));
+    
+    return {
+      email: payload.email,
+      name: payload.name,
+      exp: payload.exp
+    };
+  } catch (error) {
+    console.error('토큰에서 사용자 정보 추출 중 오류:', error);
+    return null;
+  }
 }
 
 // 인증 상태 확인

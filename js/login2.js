@@ -1,173 +1,137 @@
-import { startSession, checkSession, handleSessionExpiration, setSessionData, getSessionData, deleteSession } from './session.js';
+import { startSession, checkSession, deleteSession } from './session.js';
 import { encryptText, decryptText } from './js_crypto.js';
-import { generateToken, verifyToken } from './js_jwt_token.js';
+import { generateToken } from './js_jwt_token.js';
 
-// window.checkAuth = checkAuth;
-
-function init() {
-    const emailInput = document.getElementById('typeEmailX');
-    const idSaveCheck = document.getElementById('idSaveCheck');
-    const savedId = localStorage.getItem('savedId');
-
-    if (savedId) {
-        emailInput.value = savedId;
-        idSaveCheck.checked = true;
-    }
-
-    // 세션 상태 확인
-    if (checkSession()) {
-        window.location.href = "https://woo-2003.github.io/WEB_MAIN_20221022/login/index_login.html";
-    }
-}
-
-// DOM이 로드된 후에만 실행
-document.addEventListener('DOMContentLoaded', () => {
-    // 현재 페이지가 index_login.html인 경우에만 init_logined 실행
-    if (window.location.pathname.includes('index_login.html')) {
-        init_logined();
-    } else {
-        init();
-    }
-});
-
-const check_xss = (input) => {
-    const DOMPurify = window.DOMPurify;
-    const sanitizedInput = DOMPurify.sanitize(input);
-    if (sanitizedInput !== input) {
-        alert('XSS 공격 가능성이 있는 입력값을 발견했습니다.');
-        return false;
-    }
-    return sanitizedInput;
+// 정규식 패턴
+const PATTERNS = {
+  email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+  password: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,20}$/
 };
 
-function setCookie(name, value, expiredays) {
-    const date = new Date();
-    date.setDate(date.getDate() + expiredays);
-    document.cookie = escape(name) + "=" + escape(value) + ";expires=" + date.toUTCString() + "; path=/";
+// 에러 메시지
+const ERROR_MESSAGES = {
+  email: '올바른 이메일 형식이 아닙니다.',
+  password: '비밀번호는 8~20자이며 대소문자, 숫자, 특수문자를 모두 포함해야 합니다.',
+  login: '로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.',
+  session: '세션 생성에 실패했습니다. 다시 시도해주세요.'
+};
+
+// XSS 방지
+function sanitizeInput(input) {
+  if (!input) return '';
+  const DOMPurify = window.DOMPurify;
+  if (!DOMPurify) {
+    console.error('DOMPurify가 로드되지 않았습니다.');
+    return input;
+  }
+  return DOMPurify.sanitize(input);
 }
 
+// 입력값 검증
+function validateInput(email, password) {
+  if (!PATTERNS.email.test(email)) {
+    alert(ERROR_MESSAGES.email);
+    return false;
+  }
+  
+  if (!PATTERNS.password.test(password)) {
+    alert(ERROR_MESSAGES.password);
+    return false;
+  }
+  
+  return true;
+}
+
+// 쿠키 설정
+function setCookie(name, value, days) {
+  const date = new Date();
+  date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+  document.cookie = `${name}=${value};expires=${date.toUTCString()};path=/;SameSite=Lax`;
+}
+
+// 쿠키 가져오기
 function getCookie(name) {
-    const cookie = document.cookie;
-    if (cookie != "") {
-        const cookie_array = cookie.split("; ");
-        for (const index in cookie_array) {
-            const cookie_name = cookie_array[index].split("=");
-            if (cookie_name[0] == name) {
-                return cookie_name[1];
-            }
-        }
-    }
-    return null;
+  const nameEQ = name + '=';
+  const ca = document.cookie.split(';');
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+    if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+  }
+  return null;
 }
 
-const check_input = async () => {
-    const loginForm = document.getElementById('login_form');
-    const emailInput = document.getElementById('typeEmailX');
-    const passwordInput = document.getElementById('typePasswordX');
-    const idsave_check = document.getElementById('idSaveCheck');
-
-    const emailValue = emailInput.value.trim();
-    const passwordValue = passwordInput.value.trim();
-
-    const sanitizedPassword = check_xss(passwordValue);
-    const sanitizedEmail = check_xss(emailValue);
-
-    if (!sanitizedEmail || !sanitizedPassword) {
-        return false;
+// 로그인 처리
+export async function check_input() {
+  try {
+    const email = sanitizeInput(document.querySelector('#typeEmailX').value);
+    const password = document.querySelector('#typePasswordX').value;
+    const saveId = document.querySelector('#idSaveCheck').checked;
+    
+    if (!validateInput(email, password)) {
+      return;
     }
-
-    if (emailValue === '') {
-        alert('이메일을 입력하세요.');
-        return false;
+    
+    // 아이디 저장
+    if (saveId) {
+      setCookie('saved_email', email, 7);
+    } else {
+      setCookie('saved_email', '', 0);
     }
-
-    if (passwordValue === '') {
-        alert('비밀번호를 입력하세요.');
-        return false;
+    
+    // 로그인 처리
+    const userData = {
+      email: email,
+      loginTime: new Date().toISOString()
+    };
+    
+    // 세션 시작
+    const sessionResult = await startSession(userData);
+    if (!sessionResult) {
+      alert(ERROR_MESSAGES.session);
+      return;
     }
+    
+    // 로그인 성공 시 메인 페이지로 이동
+    window.location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/index_login.html';
+    
+  } catch (error) {
+    console.error('로그인 처리 중 오류:', error);
+    alert(ERROR_MESSAGES.login);
+  }
+}
 
-    if (emailValue.length < 5) {
-        alert('아이디는 최소 5글자 이상 입력해야 합니다.');
-        return false;
-    }
-
-    if (passwordValue.length < 12) {
-        alert('비밀번호는 반드시 12글자 이상 입력해야 합니다.');
-        return false;
-    }
-
-    const hasSpecialChar = passwordValue.match(/[!,@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/) !== null;
-    if (!hasSpecialChar) {
-        alert('패스워드는 특수문자를 1개 이상 포함해야 합니다.');
-        return false;
-    }
-
-    const hasUpperCase = passwordValue.match(/[A-Z]+/) !== null;
-    const hasLowerCase = passwordValue.match(/[a-z]+/) !== null;
-    if (!hasUpperCase || !hasLowerCase) {
-        alert('패스워드는 대소문자를 1개 이상 포함해야 합니다.');
-        return false;
-    }
-
-    try {
-        // 아이디 저장 처리
-        if (idsave_check.checked) {
-            setCookie("id", emailValue, 1);
-        } else {
-            setCookie("id", "", 0);
-        }
-
-        // JWT 토큰 생성
-        const payload = {
-            id: emailValue,
-            exp: Math.floor(Date.now() / 1000) + 3600
-        };
-        const jwtToken = generateToken(payload);
-
-        // 세션 시작 및 데이터 저장
-        startSession();
-        await setSessionData('user', { 
-            email: emailValue,
-            loginTime: Date.now()
-        });
-        localStorage.setItem('jwt_token', jwtToken);
-
-        // 로그인 성공 시 리다이렉트
-        window.location.href = "https://woo-2003.github.io/WEB_MAIN_20221022/login/index_login.html";
-        return false;
-    } catch (error) {
-        console.error('로그인 처리 중 오류:', error);
-        alert('로그인 처리 중 오류가 발생했습니다.');
-        return false;
-    }
-};
-
+// 로그인 상태 초기화
 export async function init_logined() {
-    try {
-        // 세션 체크
-        if (!checkSession()) {
-            alert('로그인이 필요합니다.');
-            window.location.href = "https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html";
-            return;
-        }
-
-        // 세션 데이터 확인
-        const sessionData = await getSessionData('user');
-        if (!sessionData) {
-            alert('세션 데이터가 없습니다. 다시 로그인해주세요.');
-            deleteSession();
-            window.location.href = "https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html";
-            return;
-        }
-
-        console.log('로그인된 사용자:', sessionData.email);
-    } catch (error) {
-        console.error('세션 초기화 중 오류:', error);
-        alert('세션 초기화 중 오류가 발생했습니다.');
-        deleteSession();
-        window.location.href = "https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html";
+  try {
+    if (!checkSession()) {
+      return;
     }
+    
+    const savedEmail = getCookie('saved_email');
+    if (savedEmail) {
+      const emailInput = document.querySelector('#typeEmailX');
+      if (emailInput) {
+        emailInput.value = savedEmail;
+        document.querySelector('#idSaveCheck').checked = true;
+      }
+    }
+  } catch (error) {
+    console.error('로그인 상태 초기화 중 오류:', error);
+  }
 }
 
-export { init, check_input };
+// 초기화
+export function init() {
+  try {
+    if (checkSession()) {
+      window.location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/index_login.html';
+      return;
+    }
+    
+    init_logined();
+  } catch (error) {
+    console.error('초기화 중 오류:', error);
+  }
+}
 

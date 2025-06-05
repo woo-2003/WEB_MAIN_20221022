@@ -1,32 +1,162 @@
 import { encryptText, decryptText } from './js_crypto.js';
-import { verifyToken } from './js_jwt_token.js';
+import { generateToken, verifyToken } from './js_jwt_token.js';
 
-// 세션 만료 시간 설정 (30분)
+// 세션 만료 시간 (30분)
 const SESSION_TIMEOUT = 30 * 60 * 1000;
 
 // 세션 시작
-export function startSession() {
-    sessionStorage.setItem('sessionStartTime', Date.now().toString());
+export async function startSession(userData) {
+  try {
+    if (!userData) {
+      throw new Error('사용자 데이터가 없습니다.');
+    }
+
+    const sessionData = {
+      user: userData,
+      startTime: Date.now(),
+      lastActivity: Date.now()
+    };
+
+    const encryptedData = await encryptText(JSON.stringify(sessionData));
+    sessionStorage.setItem('session_data', encryptedData);
+
+    // JWT 토큰 생성
+    const token = await generateToken({
+      email: userData.email,
+      exp: Math.floor(Date.now() / 1000) + 1800 // 30분
+    });
+
+    localStorage.setItem('jwt_token', token);
+    return true;
+  } catch (error) {
+    console.error('세션 시작 중 오류:', error);
+    return false;
+  }
 }
 
 // 세션 만료 체크
 export function checkSessionExpired() {
-    const sessionStartTime = sessionStorage.getItem('sessionStartTime');
-    if (!sessionStartTime) {
-        return true;
-    }
+  try {
+    const sessionData = sessionStorage.getItem('session_data');
+    if (!sessionData) return true;
 
-    const currentTime = Date.now();
-    const sessionTime = currentTime - parseInt(sessionStartTime);
-    
-    return sessionTime > SESSION_TIMEOUT;
+    const lastActivity = JSON.parse(decryptText(sessionData)).lastActivity;
+    return Date.now() - lastActivity > SESSION_TIMEOUT;
+  } catch (error) {
+    console.error('세션 만료 체크 중 오류:', error);
+    return true;
+  }
 }
 
-// 세션 만료 시 처리
+// 세션 만료 처리
 export function handleSessionExpiration() {
-    alert('세션이 만료되어 자동 로그아웃됩니다.');
+  deleteSession();
+  window.location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html';
+}
+
+// 세션 데이터 저장
+export async function setSessionData(key, value) {
+  try {
+    if (!sessionStorage) {
+      throw new Error('세션 스토리지를 사용할 수 없습니다.');
+    }
+
+    const sessionData = {
+      [key]: value,
+      lastActivity: Date.now()
+    };
+
+    const encryptedData = await encryptText(JSON.stringify(sessionData));
+    sessionStorage.setItem('session_data', encryptedData);
+    return true;
+  } catch (error) {
+    console.error('세션 데이터 저장 중 오류:', error);
+    return false;
+  }
+}
+
+// 세션 데이터 조회
+export async function getSessionData(key) {
+  try {
+    if (!sessionStorage) {
+      throw new Error('세션 스토리지를 사용할 수 없습니다.');
+    }
+
+    const sessionData = sessionStorage.getItem('session_data');
+    if (!sessionData) return null;
+
+    const decryptedData = await decryptText(sessionData);
+    const data = JSON.parse(decryptedData);
+
+    if (checkSessionExpired()) {
+      handleSessionExpiration();
+      return null;
+    }
+
+    return key ? data[key] : data;
+  } catch (error) {
+    console.error('세션 데이터 조회 중 오류:', error);
+    return null;
+  }
+}
+
+// 세션 삭제
+export function deleteSession() {
+  try {
+    sessionStorage.removeItem('session_data');
+    localStorage.removeItem('jwt_token');
+    return true;
+  } catch (error) {
+    console.error('세션 삭제 중 오류:', error);
+    return false;
+  }
+}
+
+// 인증 상태 확인
+export async function checkAuth() {
+  try {
+    const token = localStorage.getItem('jwt_token');
+    if (!token) {
+      window.location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html';
+      return false;
+    }
+
+    const isValid = await verifyToken(token);
+    if (!isValid) {
+      deleteSession();
+      window.location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html';
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('인증 상태 확인 중 오류:', error);
     deleteSession();
     window.location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html';
+    return false;
+  }
+}
+
+// 회원가입 데이터 저장
+export async function session_set2(userData) {
+  try {
+    const users = await getSessionData('users') || [];
+    users.push(userData);
+    return await setSessionData('users', users);
+  } catch (error) {
+    console.error('회원가입 데이터 저장 중 오류:', error);
+    return false;
+  }
+}
+
+// 회원가입 데이터 조회
+export async function session_get_join() {
+  try {
+    return await getSessionData('users') || [];
+  } catch (error) {
+    console.error('회원가입 데이터 조회 중 오류:', error);
+    return [];
+  }
 }
 
 // 세션 체크
@@ -36,106 +166,6 @@ export function checkSession() {
         return false;
     }
     return true;
-}
-
-// 세션 데이터 설정
-export async function setSessionData(key, data) {
-    if (!sessionStorage) {
-        alert('세션 스토리지를 지원하지 않는 브라우저입니다.');
-        return;
-    }
-
-    try {
-        const dataString = JSON.stringify(data);
-        const encryptedData = await encryptText(dataString);
-        sessionStorage.setItem(key, encryptedData);
-        startSession();
-    } catch (error) {
-        console.error('세션 데이터 저장 중 오류:', error);
-        throw error;
-    }
-}
-
-// 세션 데이터 가져오기
-export async function getSessionData(key) {
-    if (!sessionStorage) {
-        return null;
-    }
-
-    try {
-        const encryptedData = sessionStorage.getItem(key);
-        if (!encryptedData) {
-            return null;
-        }
-
-        const decryptedData = await decryptText(encryptedData);
-        return JSON.parse(decryptedData);
-    } catch (error) {
-        console.error('세션 데이터 읽기 중 오류:', error);
-        return null;
-    }
-}
-
-// 세션 삭제
-export function deleteSession() {
-    if (sessionStorage) {
-        sessionStorage.clear();
-        localStorage.removeItem('jwt_token');
-        setCookie('session_id', '', 0);
-    }
-}
-
-// 쿠키 설정
-function setCookie(name, value, days) {
-    const date = new Date();
-    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-    document.cookie = `${name}=${value};expires=${date.toUTCString()};path=/`;
-}
-
-// 쿠키 가져오기
-function getCookie(name) {
-    const nameEQ = name + '=';
-    const ca = document.cookie.split(';');
-    for (let i = 0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
-    }
-    return null;
-}
-
-// 인증 체크 함수
-export async function checkAuth() {
-    try {
-        // JWT 토큰 확인
-        const token = localStorage.getItem('jwt_token');
-        if (!token) {
-            alert('로그인이 필요합니다.');
-            window.location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html';
-            return false;
-        }
-
-        // 토큰 검증
-        const payload = await verifyToken(token);
-        if (!payload) {
-            alert('세션이 만료되었습니다. 다시 로그인해주세요.');
-            localStorage.removeItem('jwt_token');
-            window.location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html';
-            return false;
-        }
-
-        // 세션 상태 확인
-        if (!checkSession()) {
-            return false;
-        }
-
-        return true;
-    } catch (error) {
-        console.error('인증 체크 중 오류:', error);
-        alert('인증 처리 중 오류가 발생했습니다.');
-        window.location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html';
-        return false;
-    }
 }
 
 // 페이지 로드 시 세션 체크 시작
@@ -184,32 +214,9 @@ export function session_set() { //세션 저장
     }
 }
 
-export function session_set2(obj){ //세션 저장(객체)
-    if (sessionStorage) {
-        const objString = JSON.stringify(obj); // 객체 -> JSON 문자열 변환
-        let en_text = encryptText(objString); // 암호화
-        sessionStorage.setItem("Session_Storage_join", objString);
-    } else {
-        alert("세션 스토리지 지원 x");
-    }
-}
-
 export function session_get() { //세션 읽기
     if (sessionStorage) {
         return sessionStorage.getItem("Session_Storage_pass");
-    } else {
-        alert("세션 스토리지 지원 x");
-        return null;
-    }
-}
-
-export function session_get_join() { //세션 읽기(회원가입)
-    if (sessionStorage) {
-        const joinData = sessionStorage.getItem("Session_Storage_join");
-        if (joinData) {
-            return JSON.parse(joinData);
-        }
-        return null;
     } else {
         alert("세션 스토리지 지원 x");
         return null;
