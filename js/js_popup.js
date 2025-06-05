@@ -1,93 +1,116 @@
 window.pop_up = function() {
   var cookieCheck = getCookie("popupYN");
-    if (cookieCheck != "N"){
-    window.open("https://woo-2003.github.io/WEB_MAIN_20221022/popup/popup.html", "팝업테스트", "width=400, height=300, top=10, left=10");
+  if (cookieCheck != "N") {
+    window.open("https://woo-2003.github.io/WEB_MAIN_20221022/popup/popup.html", 
+                "팝업테스트", 
+                "width=400, height=500, top=10, left=10");
   }
 }
 
-  // (../)의 뜻 = 한 파일 밖에 나가서 불러온다
+// (../)의 뜻 = 한 파일 밖에 나가서 불러온다
 
-var close_time; // 시간 정보
-var close_time2 = 50; // 10초 설정
+// 타이머 관련 변수
+let close_time;
+const CLOSE_DELAY = 50; // 50초로 설정
+let close_time2 = CLOSE_DELAY;
 
-clearTimeout(close_time); // 재호출 정지
-close_time = setTimeout("close_window()", 50000);
+// 타이머 초기화
+function initTimer() {
+  clearTimeout(close_time);
+  close_time = setTimeout(close_window, CLOSE_DELAY * 1000);
+}
 
-// show_time 함수를 window 객체에 할당
+// 타이머 표시
 window.show_time = function() {
   let divClock = document.getElementById('Time');
-  if (divClock) {  // Time 요소가 존재하는 경우에만 실행
-    divClock.innerText = close_time2; // 10초 삽입 시작
-    close_time2--; // 1초씩 감소
-    setTimeout(show_time, 1000); //1초마다 갱신
+  if (divClock) {
+    divClock.innerText = `자동 닫힘까지 ${close_time2}초`;
+    close_time2--;
+    if (close_time2 >= 0) {
+      setTimeout(show_time, 1000);
+    }
   }
 }
 
-// 페이지 로드 시 show_time 함수 실행
+// 페이지 로드 시 타이머 초기화
 if (window.location.pathname.includes('popup.html')) {
-  show_time();
+  initTimer();
 }
 
-function close_window() { // 함수 정의
-  window.close(); // 윈도우 닫기
+// 팝업 창 닫기
+function close_window() {
+  window.close();
 }
 
+// 쿠키 설정
 function setCookie(name, value, expiredays) {
-  var date = new Date();
+  const date = new Date();
   date.setDate(date.getDate() + expiredays);
-  document.cookie = escape(name) + "=" + escape(value) + "; expires=" + date.toUTCString() + "; path=/; SameSite=None; Secure";
+  const cookieValue = `${escape(name)}=${escape(value)}; expires=${date.toUTCString()}; path=/; SameSite=Lax`;
+  document.cookie = cookieValue;
+  console.log("쿠키가 설정되었습니다:", cookieValue);
 }
 
+// 쿠키 가져오기
 function getCookie(name) {
-  var cookie = document.cookie;
-  console.log("쿠키를 요청합니다.");
-  if (cookie != "") {
-      var cookie_array = cookie.split("; ");
-      for ( var index in cookie_array) {
-        var cookie_name = cookie_array[index].split("=");
-        if (cookie_name[0] == "popupYN") {
-          return cookie_name[1];
-        }
+  const cookie = document.cookie;
+  console.log("쿠키를 확인합니다.");
+  if (cookie) {
+    const cookieArray = cookie.split("; ");
+    for (const cookieItem of cookieArray) {
+      const [cookieName, cookieValue] = cookieItem.split("=");
+      if (cookieName === name) {
+        return cookieValue;
       }
-  } 
-  return ;
+    }
+  }
+  return null;
 }
 
+// 시계 표시
+function show_clock() {
+  const divClock = document.getElementById('divClock');
+  if (!divClock) return;
 
-function show_clock(){
-  let currentDate = new Date(); // 현재 시스템 날짜 객체 생성
-  let divClock = document.getElementById('divClock');
-  let msg = "현재 시간 : ";
-  if(currentDate.getHours()>12){ // 12시 보다 크면 오후 아니면 오전
-  msg += "오후";
-  msg += currentDate.getHours()-12+"시";
+  function updateClock() {
+    const currentDate = new Date();
+    let msg = "현재 시간 : ";
+    
+    // 오전/오후 구분
+    const hours = currentDate.getHours();
+    msg += hours > 12 ? "오후 " + (hours - 12) : "오전 " + hours;
+    msg += "시 " + currentDate.getMinutes() + "분 " + currentDate.getSeconds() + "초";
+    
+    divClock.innerText = msg;
+    
+    // 정각 1분 전 빨간색 표시
+    if (currentDate.getMinutes() > 58) {
+      divClock.style.color = "red";
+    } else {
+      divClock.style.color = "black";
+    }
   }
-  else {
-  msg += "오전";
-  msg += currentDate.getHours()+"시";
-  }
-  msg += currentDate.getMinutes()+"분";
-  msg += currentDate.getSeconds()+"초";
-  divClock.innerText = msg;
-  if (currentDate.getMinutes()>58) { //정각 1분전 빨강색 출력
-  divClock.style.color="red";
-  }
-  setTimeout(show_clock, 1000); //1초마다 갱신
+
+  updateClock();
+  setInterval(updateClock, 1000);
 }
 
+// 이미지 호버 효과
 function over(obj) {
   obj.src = "https://woo-2003.github.io/WEB_MAIN_20221022/image/lollogo.png";
 }
+
 function out(obj) {
   obj.src = "https://woo-2003.github.io/WEB_MAIN_20221022/image/popuplollogo.png";
 }
 
-
+// 팝업 닫기 및 쿠키 설정
 function closePopup() {
-  if (document.getElementById('check_popup').value) {
+  const checkbox = document.getElementById('check_popup');
+  if (checkbox && checkbox.checked) {
     setCookie("popupYN", "N", 1);
-    console.log("쿠키를 설정합니다.");
-    self.close();
+    console.log("팝업을 닫고 쿠키를 설정합니다.");
+    window.close();
   }
 }
   
