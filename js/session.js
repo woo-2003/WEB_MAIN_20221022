@@ -1,4 +1,5 @@
 import { encryptText, decryptText } from './js_crypto.js';
+import { verifyToken } from './js_jwt_token.js';
 
 // 세션 만료 시간 설정 (30분)
 const SESSION_TIMEOUT = 30 * 60 * 1000;
@@ -25,6 +26,7 @@ export function checkSessionExpired() {
 export function handleSessionExpiration() {
     alert('세션이 만료되어 자동 로그아웃됩니다.');
     sessionStorage.clear();
+    localStorage.removeItem('jwt_token');
     location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html';
 }
 
@@ -73,6 +75,7 @@ export async function decryptSessionData(data) {
 export function deleteSession() {
     if (sessionStorage) {
         sessionStorage.clear();
+        localStorage.removeItem('jwt_token');
         setCookie('session_id', '', 0);
     }
 }
@@ -96,6 +99,40 @@ function getCookie(name) {
     return null;
 }
 
+// 인증 체크 함수
+export async function checkAuth() {
+    try {
+        // JWT 토큰 확인
+        const token = localStorage.getItem('jwt_token');
+        if (!token) {
+            alert('로그인이 필요합니다.');
+            window.location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html';
+            return false;
+        }
+
+        // 토큰 검증
+        const payload = await verifyToken(token);
+        if (!payload) {
+            alert('세션이 만료되었습니다. 다시 로그인해주세요.');
+            localStorage.removeItem('jwt_token');
+            window.location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html';
+            return false;
+        }
+
+        // 세션 상태 확인
+        if (!checkSession()) {
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        console.error('인증 체크 중 오류:', error);
+        alert('인증 처리 중 오류가 발생했습니다.');
+        window.location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html';
+        return false;
+    }
+}
+
 // 페이지 로드 시 세션 체크 시작
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
@@ -106,17 +143,6 @@ if (document.readyState === 'loading') {
     startSession();
     setInterval(checkSession, 60000);
 }
-
-// 인증 체크 함수
-window.checkAuth = function() {
-    const token = localStorage.getItem('jwt_token');
-    if (!token) {
-        alert('로그인이 필요합니다.');
-        location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html';
-        return false;
-    }
-    return true;
-};
 
 export function session_set() { //세션 저장
     let id = document.querySelector("#typeEmailX");
