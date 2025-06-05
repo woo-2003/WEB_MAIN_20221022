@@ -3,13 +3,13 @@ import { encrypt_text, decrypt_text } from './js_crypto.js';
 // 세션 만료 시간 설정 (30분)
 const SESSION_TIMEOUT = 30 * 60 * 1000;
 
-// 세션 시작 시간 저장
-function startSession() {
+// 세션 시작
+export function startSession() {
     sessionStorage.setItem('sessionStartTime', Date.now().toString());
 }
 
 // 세션 만료 체크
-function checkSessionExpired() {
+export function checkSessionExpired() {
     const sessionStartTime = sessionStorage.getItem('sessionStartTime');
     if (!sessionStartTime) {
         return true;
@@ -22,24 +22,90 @@ function checkSessionExpired() {
 }
 
 // 세션 만료 시 처리
-function handleSessionExpired() {
+export function handleSessionExpiration() {
     alert('세션이 만료되어 자동 로그아웃됩니다.');
     sessionStorage.clear();
     location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html';
 }
 
-// 주기적으로 세션 체크
-function checkSession() {
+// 세션 체크
+export function checkSession() {
     if (checkSessionExpired()) {
-        handleSessionExpired();
+        handleSessionExpiration();
+        return false;
+    }
+    return true;
+}
+
+// 세션 데이터 설정
+export function setSessionData(data) {
+    if (sessionStorage) {
+        const encryptedData = encrypt_text(data);
+        sessionStorage.setItem('sessionData', encryptedData);
+        startSession();
+    } else {
+        alert('세션 스토리지를 지원하지 않는 브라우저입니다.');
     }
 }
 
-// 페이지 로드 시 세션 시작
-window.onload = function() {
+// 세션 데이터 가져오기
+export function getSessionData() {
+    if (sessionStorage) {
+        const encryptedData = sessionStorage.getItem('sessionData');
+        if (encryptedData) {
+            return decrypt_text(encryptedData);
+        }
+    }
+    return null;
+}
+
+// 세션 데이터 암호화
+export function encryptSessionData(data) {
+    return encrypt_text(data);
+}
+
+// 세션 데이터 복호화
+export function decryptSessionData(data) {
+    return decrypt_text(data);
+}
+
+// 세션 삭제
+export function deleteSession() {
+    if (sessionStorage) {
+        sessionStorage.clear();
+        setCookie('session_id', '', 0);
+    }
+}
+
+// 쿠키 설정
+function setCookie(name, value, days) {
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    document.cookie = `${name}=${value};expires=${date.toUTCString()};path=/`;
+}
+
+// 쿠키 가져오기
+function getCookie(name) {
+    const nameEQ = name + '=';
+    const ca = document.cookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
+}
+
+// 페이지 로드 시 세션 체크 시작
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        startSession();
+        setInterval(checkSession, 60000); // 1분마다 체크
+    });
+} else {
     startSession();
-    setInterval(checkSession, 60000); // 1분마다 체크
-};
+    setInterval(checkSession, 60000);
+}
 
 // 인증 체크 함수
 window.checkAuth = function() {
@@ -147,12 +213,5 @@ function session_del() {//세션 삭제
     } else {
         alert("세션 스토리지 지원 x");
     }
-}
-
-// 쿠키 설정 함수
-function setCookie(name, value, expiredays) {
-    var date = new Date();
-    date.setDate(date.getDate() + expiredays);
-    document.cookie = escape(name) + "=" + escape(value) + "; expires=" + date.toUTCString() + "; path=/";
 }
   

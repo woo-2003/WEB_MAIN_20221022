@@ -169,7 +169,7 @@ export async function check_input() {
             loginTime: Date.now()
         };
         
-        const encryptedData = encryptSessionData(JSON.stringify(sessionData));
+        const encryptedData = await encryptText(JSON.stringify(sessionData));
         setSessionData(encryptedData);
         
         // 아이디 저장 처리
