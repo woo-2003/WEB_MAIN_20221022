@@ -82,7 +82,9 @@ export async function check_input() {
     // 로그인 처리
     const userData = {
       email: email,
-      loginTime: new Date().toISOString()
+      password: password,
+      loginTime: new Date().toISOString(),
+      lastActivity: new Date().toISOString()
     };
     
     // 세션 시작

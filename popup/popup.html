@@ -7,7 +7,7 @@
     <meta name="author" content="20221022">
     <meta name="keywords" content="computer">
     <base href="https://woo-2003.github.io/WEB_MAIN_20221022/">
-    <script type="text/javascript" src="https://woo-2003.github.io/WEB_MAIN_20221022/js/js_popup.js"></script>
+    <script type="module" src="https://woo-2003.github.io/WEB_MAIN_20221022/js/js_popup.js"></script>
     <style>
       .clock {
         font-size: 1.5em;
@@ -25,21 +25,50 @@
       .checkbox-container {
         margin-top: 20px;
       }
+      .logo {
+        transition: transform 0.3s ease;
+      }
+      .logo:hover {
+        transform: scale(1.1);
+      }
     </style>
   </head>
-  <body onload="show_clock(); show_time();">
+  <body>
     <div class="popup-content">
       <div style="display: flex; justify-content: center;">
-        <img src="https://woo-2003.github.io/WEB_MAIN_20221022/image/popuplollogo.png" width="300" height="100">
+        <img src="https://woo-2003.github.io/WEB_MAIN_20221022/image/popuplollogo.png" 
+             width="300" height="100" 
+             class="logo"
+             onmouseover="window.over(this)" 
+             onmouseout="window.out(this)">
       </div>
       <h1>팝업 테스트</h1>
       <div id="divClock" class="clock"></div>
       <div id="Time" class="clock timer"></div>
       <div class="checkbox-container">
-        <input class="form-check-input" type="checkbox" id="check_popup" onclick="closePopup();">
+        <input class="form-check-input" type="checkbox" id="check_popup">
         <label class="form-check-label" for="check_popup">하루에 한번만 열기</label>
       </div>
     </div>
+    <script type="module">
+      import { show_clock, show_time, closePopup } from '../js/js_popup.js';
+      
+      // 전역 함수로 노출
+      window.over = (obj) => obj.src = "https://woo-2003.github.io/WEB_MAIN_20221022/image/lollogo.png";
+      window.out = (obj) => obj.src = "https://woo-2003.github.io/WEB_MAIN_20221022/image/popuplollogo.png";
+      
+      // 초기화
+      document.addEventListener('DOMContentLoaded', () => {
+        show_clock();
+        show_time();
+        
+        // 체크박스 이벤트 리스너
+        const checkbox = document.getElementById('check_popup');
+        if (checkbox) {
+          checkbox.addEventListener('click', closePopup);
+        }
+      });
+    </script>
   </body>
 </html>
 
