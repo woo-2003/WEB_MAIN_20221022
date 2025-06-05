@@ -1,6 +1,7 @@
-window.pop_up = function() {
-  var cookieCheck = getCookie("popupYN");
-  if (cookieCheck != "N") {
+// 팝업 창 열기
+export function pop_up() {
+  const cookieCheck = getCookie("popupYN");
+  if (cookieCheck !== "N") {
     window.open("https://woo-2003.github.io/WEB_MAIN_20221022/popup/popup.html", 
                 "팝업테스트", 
                 "width=400, height=500, top=10, left=10");
@@ -21,8 +22,8 @@ function initTimer() {
 }
 
 // 타이머 표시
-window.show_time = function() {
-  let divClock = document.getElementById('Time');
+export function show_time() {
+  const divClock = document.getElementById('Time');
   if (divClock) {
     divClock.innerText = `자동 닫힘까지 ${close_time2}초`;
     close_time2--;
@@ -68,7 +69,7 @@ function getCookie(name) {
 }
 
 // 시계 표시
-function show_clock() {
+export function show_clock() {
   const divClock = document.getElementById('divClock');
   if (!divClock) return;
 
@@ -96,16 +97,16 @@ function show_clock() {
 }
 
 // 이미지 호버 효과
-function over(obj) {
+export function over(obj) {
   obj.src = "https://woo-2003.github.io/WEB_MAIN_20221022/image/lollogo.png";
 }
 
-function out(obj) {
+export function out(obj) {
   obj.src = "https://woo-2003.github.io/WEB_MAIN_20221022/image/popuplollogo.png";
 }
 
 // 팝업 닫기 및 쿠키 설정
-function closePopup() {
+export function closePopup() {
   const checkbox = document.getElementById('check_popup');
   if (checkbox && checkbox.checked) {
     setCookie("popupYN", "N", 1);
