@@ -76,10 +76,10 @@ function show_clock(){
 }
 
 function over(obj) {
-  obj.src="image/lollogo.png";
+  obj.src = "https://woo-2003.github.io/WEB_MAIN_20221022/image/lollogo.png";
 }
 function out(obj) {
-  obj.src="image/popuplollogo.png";
+  obj.src = "https://woo-2003.github.io/WEB_MAIN_20221022/image/popuplollogo.png";
 }
 
 
