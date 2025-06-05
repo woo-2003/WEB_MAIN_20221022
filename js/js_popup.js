@@ -1,7 +1,7 @@
 window.pop_up = function() {
   var cookieCheck = getCookie("popupYN");
     if (cookieCheck != "N"){
-    window.open("https://woo-2003.github.io/WEB_MAIN_20221022/popup/popup.html", "팝업테스트", "width=400, height=300, top=10, left=10");
+    window.open("popup/popup.html", "팝업테스트", "width=400, height=300, top=10, left=10");
   }
 }
 
@@ -76,10 +76,10 @@ function show_clock(){
 }
 
 function over(obj) {
-  obj.src = "https://woo-2003.github.io/WEB_MAIN_20221022/image/lollogo.png";
+  obj.src = "image/lollogo.png";
 }
 function out(obj) {
-  obj.src = "https://woo-2003.github.io/WEB_MAIN_20221022/image/popuplollogo.png";
+  obj.src = "image/popuplollogo.png";
 }
 
 
