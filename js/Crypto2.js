@@ -41,8 +41,12 @@ async function importKey(keyString) {
 }
 
 // 암호화 함수
-export async function encryptData(data) {
+export async function encrypt(data) {
     try {
+        if (!data) {
+            throw new Error('암호화할 데이터가 없습니다.');
+        }
+
         // 키 생성 또는 가져오기
         let key = sessionStorage.getItem('crypto_key');
         if (!key) {
@@ -80,8 +84,12 @@ export async function encryptData(data) {
 }
 
 // 복호화 함수
-export async function decryptData(encryptedData) {
+export async function decrypt(encryptedData) {
     try {
+        if (!encryptedData) {
+            throw new Error('복호화할 데이터가 없습니다.');
+        }
+
         // 키 가져오기
         const key = sessionStorage.getItem('crypto_key');
         if (!key) {

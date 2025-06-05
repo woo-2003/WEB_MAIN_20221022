@@ -160,7 +160,7 @@ export async function check_input() {
 
     try {
         // JWT 토큰 생성
-        const token = generateToken({ email });
+        const token = await generateToken({ email });
         
         // 세션 데이터 암호화
         const sessionData = {
@@ -169,8 +169,8 @@ export async function check_input() {
             loginTime: Date.now()
         };
         
-        const encryptedData = await encryptText(JSON.stringify(sessionData));
-        setSessionData(encryptedData);
+        const encryptedData = await encrypt(JSON.stringify(sessionData));
+        await setSessionData(encryptedData);
         
         // 아이디 저장 처리
         if (idSaveCheck && idSaveCheck.checked) {
