@@ -25,9 +25,8 @@ export function checkSessionExpired() {
 // 세션 만료 시 처리
 export function handleSessionExpiration() {
     alert('세션이 만료되어 자동 로그아웃됩니다.');
-    sessionStorage.clear();
-    localStorage.removeItem('jwt_token');
-    location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html';
+    deleteSession();
+    window.location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html';
 }
 
 // 세션 체크
@@ -40,35 +39,41 @@ export function checkSession() {
 }
 
 // 세션 데이터 설정
-export async function setSessionData(data) {
-    if (sessionStorage) {
-        const encryptedData = await encryptText(data);
-        sessionStorage.setItem('sessionData', encryptedData);
-        startSession();
-    } else {
+export async function setSessionData(key, data) {
+    if (!sessionStorage) {
         alert('세션 스토리지를 지원하지 않는 브라우저입니다.');
+        return;
+    }
+
+    try {
+        const dataString = JSON.stringify(data);
+        const encryptedData = await encryptText(dataString);
+        sessionStorage.setItem(key, encryptedData);
+        startSession();
+    } catch (error) {
+        console.error('세션 데이터 저장 중 오류:', error);
+        throw error;
     }
 }
 
 // 세션 데이터 가져오기
-export async function getSessionData() {
-    if (sessionStorage) {
-        const encryptedData = sessionStorage.getItem('sessionData');
-        if (encryptedData) {
-            return await decryptText(encryptedData);
-        }
+export async function getSessionData(key) {
+    if (!sessionStorage) {
+        return null;
     }
-    return null;
-}
 
-// 세션 데이터 암호화
-export async function encryptSessionData(data) {
-    return await encryptText(data);
-}
+    try {
+        const encryptedData = sessionStorage.getItem(key);
+        if (!encryptedData) {
+            return null;
+        }
 
-// 세션 데이터 복호화
-export async function decryptSessionData(data) {
-    return await decryptText(data);
+        const decryptedData = await decryptText(encryptedData);
+        return JSON.parse(decryptedData);
+    } catch (error) {
+        console.error('세션 데이터 읽기 중 오류:', error);
+        return null;
+    }
 }
 
 // 세션 삭제
