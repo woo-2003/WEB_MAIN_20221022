@@ -41,47 +41,44 @@
     <div style="display: flex; justify-content: center;">
         <img src="https://woo-2003.github.io/WEB_MAIN_20221022/image/lollogo.png" width="300" height="100" onmouseover="over(this)" onmouseout="out(this)">
         <h3 style="font-size: 24px; font-weight: bold; font-style: italic; color: white;">
-            <a href="https://www.leagueoflegends.com/ko-kr/how-to-play/" target="_blank"> G-SHOCK X L.O.L (메뉴) </a> 
-            
-            <nav class="navbar navbar-expand-lg bg-body-tertiary">
-                <div class="container-fluid">
-                    <a class="navbar-brand" href="#">검색</a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                            <li class="nav-item">
-                                <a class="nav-link active" aria-current="page" href="#">홈</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">링크</a>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    다운로드
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="#">Action</a></li>
-                                    <li><a class="dropdown-item" href="#">Another action</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="#">Something else here</a></li>
-                                </ul>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link disabled" aria-disabled="true">Disabled</a>
-                            </li>
-                        </ul>
-                        <form class="d-flex" role="search" onsubmit="return googleSearch();">
-                            <input class="form-control me-2" id="search_input" name="q" type="search" placeholder="키워드 입력" aria-label="Search">
-                            <button class="btn btn-outline-success" id="search_btn" type="submit">검색하기</button>
-                        </form>
-                    </div>
-                    <a href="https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html" class="btn btn-outline-success" id="login_btn">로그인</a>
+        <nav class="navbar navbar-expand-lg" style="background: linear-gradient(90deg, #232946 60%, #121629 100%); box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
+            <div class="container-fluid">
+            <a class="navbar-brand" href="https://www.leagueoflegends.com/ko-kr/how-to-play/" target="_blank" style="color:#ffd700; font-weight:bold;">G-SHOCK X L.O.L (메뉴)</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+                
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="/" style="color:#fff;">홈</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="https://www.leagueoflegends.com/ko-kr/news/" style="color:#fff;">뉴스</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color:#fff;">
+                    다운로드
+                    </a>
+                    <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="https://signup.leagueoflegends.com/ko-kr/signup/index">게임 클라이언트</a></li>
+                    <li><a class="dropdown-item" href="https://wildrift.leagueoflegends.com/ko-kr/">모바일 버전</a></li>
+                    <li><a class="dropdown-item" href="https://www.leagueoflegends.com/ko-kr/news/tags/patch-notes/">패치 노트</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="https://support-leagueoflegends.riotgames.com/hc/ko">고객지원</a></li>
+                    </ul>
+                    </li>
+                </ul>
+                <form class="d-flex me-2" role="search" onsubmit="return search_message();">
+                    <input class="form-control me-2" id="search_input" name="q" type="search" placeholder="키워드 입력" aria-label="Search" style="background:#232946; color:#ffd700; border:1px solid #ffd700;">
+                    <button class="btn" id="search_btn" type="submit" style="border:1px solid #ffd700; color:#ffd700;">검색하기</button>
+                </form>
                 </div>
-            </nav>
+                <a href="https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html" class="btn btn-outline-success" id="login_btn">로그인</a>
+            </div>
+        </nav>          
         </h3>
-    </div>
+        </div>
     <div class="logout-container">
         <div class="logout-card">
             <div class="logout-icon">👋</div>
