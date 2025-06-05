@@ -7,12 +7,17 @@ const SESSION_TIMEOUT = 30 * 60 * 1000;
 // 세션 시작
 export async function startSession(userData) {
   try {
-    if (!userData) {
-      throw new Error('사용자 데이터가 없습니다.');
+    if (!userData || !userData.email) {
+      console.error('사용자 데이터가 올바르지 않습니다:', userData);
+      return false;
     }
 
     const sessionData = {
-      user: userData,
+      user: {
+        email: userData.email,
+        loginTime: userData.loginTime || new Date().toISOString(),
+        lastActivity: userData.lastActivity || new Date().toISOString()
+      },
       startTime: Date.now(),
       lastActivity: Date.now()
     };
