@@ -16,26 +16,22 @@
     <!-- 모듈 스크립트 -->
     <script type="module">
       import { init, check_input } from 'https://woo-2003.github.io/WEB_MAIN_20221022/js/login.js';
-      import { session_set, session_get, session_check } from 'https://woo-2003.github.io/WEB_MAIN_20221022/js/session.js';
-      import { encrypt_text, decrypt_text } from 'https://woo-2003.github.io/WEB_MAIN_20221022/js/js_crypto.js';
-      import { generateJWT, checkAuth } from 'https://woo-2003.github.io/WEB_MAIN_20221022/js/js_jwt_token.js';
       
+      // 전역 스코프에 함수 할당
       window.init = init;
       window.check_input = check_input;
-      window.session_set = session_set;
-      window.session_get = session_get;
-      window.session_check = session_check;
-      window.encrypt_text = encrypt_text;
-      window.decrypt_text = decrypt_text;
-      window.generateJWT = generateJWT;
-      window.checkAuth = checkAuth;
+      
+      // 페이지 로드 시 초기화
+      document.addEventListener('DOMContentLoaded', () => {
+        init();
+      });
     </script>
     
     <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://woo-2003.github.io/WEB_MAIN_20221022/css/login.css">
   </head>
   
-  <body class="text-center" onload="init();">
+  <body class="text-center">
     <section class="vh-100 gradient-custom">
       <div class="container py-5 h-100">
         <div class="row d-flex justify-content-center align-items-center h-100">

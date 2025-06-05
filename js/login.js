@@ -66,8 +66,8 @@ function logout_count() {
     console.log("로그아웃 횟수:", count);
 }
 
-// init 함수를 window 객체에 할당
-window.init = function() {
+// init 함수
+export function init() {
     const emailInput = document.getElementById('typeEmailX');
     const idsave_check = document.getElementById('idSaveCheck');
     let get_id = getCookie("id");
@@ -186,7 +186,7 @@ const validateInput = (email, password) => {
 };
 
 // 로그인 처리 함수
-const check_input = async () => {
+export async function check_input() {
     try {
         // 로그인 제한 상태 확인
         if (check_login_block()) {
@@ -242,7 +242,7 @@ const check_input = async () => {
         login_failed();
         return false;
     }
-};
+}
 
 // DOM이 로드된 후 초기화
 if (document.readyState === 'loading') {
