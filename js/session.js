@@ -1,7 +1,56 @@
 import { encrypt_text, decrypt_text } from './js_crypto.js';
 
 // 세션 만료 시간 설정 (30분)
-const SESSION_TIMEOUT = 30 * 60 * 1000; // 30분을 밀리초로 변환
+const SESSION_TIMEOUT = 30 * 60 * 1000;
+
+// 세션 시작 시간 저장
+function startSession() {
+    sessionStorage.setItem('sessionStartTime', Date.now().toString());
+}
+
+// 세션 만료 체크
+function checkSessionExpired() {
+    const sessionStartTime = sessionStorage.getItem('sessionStartTime');
+    if (!sessionStartTime) {
+        return true;
+    }
+
+    const currentTime = Date.now();
+    const sessionTime = currentTime - parseInt(sessionStartTime);
+    
+    return sessionTime > SESSION_TIMEOUT;
+}
+
+// 세션 만료 시 처리
+function handleSessionExpired() {
+    alert('세션이 만료되어 자동 로그아웃됩니다.');
+    sessionStorage.clear();
+    location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html';
+}
+
+// 주기적으로 세션 체크
+function checkSession() {
+    if (checkSessionExpired()) {
+        handleSessionExpired();
+    }
+}
+
+// 페이지 로드 시 세션 시작
+window.onload = function() {
+    startSession();
+    setInterval(checkSession, 60000); // 1분마다 체크
+};
+
+// 인증 체크 함수
+window.checkAuth = function() {
+    const token = localStorage.getItem('jwt_token');
+    if (!token) {
+        alert('로그인이 필요합니다.');
+        location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html';
+        return false;
+    }
+    return true;
+};
 
 export function session_set() { //세션 저장
     let id = document.querySelector("#typeEmailX");
@@ -85,25 +134,6 @@ export function session_check() { //세션 검사
         
         alert("이미 로그인 되었습니다.");
         location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/index_login.html'; // 로그인된 페이지로 이동
-    }
-}
-
-export function checkAuth() {
-    if (!sessionStorage.getItem("Session_Storage_id")) {
-        alert("로그인이 필요합니다.");
-        location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html';
-        return;
-    }
-    
-    const sessionData = JSON.parse(sessionStorage.getItem("Session_Storage_object"));
-    const currentTime = new Date().getTime();
-    
-    // 세션 만료 시간 체크
-    if (sessionData.expires && currentTime > sessionData.expires) {
-        alert("세션이 만료되었습니다. 다시 로그인해주세요.");
-        session_del();
-        location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html';
-        return;
     }
 }
 

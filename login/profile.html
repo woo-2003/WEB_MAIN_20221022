@@ -8,6 +8,9 @@
     <meta name="author" content="20221022">
     <meta name="keywords" content="computer">
     <base href="https://woo-2003.github.io/WEB_MAIN_20221022/">
+    <script type="text/javascript" src="https://woo-2003.github.io/WEB_MAIN_20221022/js/session.js"></script>
+    <script type="text/javascript" src="https://woo-2003.github.io/WEB_MAIN_20221022/js/js_popup.js"></script>
+    <script type="text/javascript" src="https://woo-2003.github.io/WEB_MAIN_20221022/js/js_search.js"></script>
 
     <style>
       table {
@@ -56,12 +59,11 @@
     <!-- 카카오맵 스크립트를 먼저 로드 -->
     <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=62e13c9ec005e25d307da9a618dc65ae&libraries=services,clusterer,drawing"></script>
     <!-- 그 다음 다른 스크립트 로드 -->
-    <script type="text/javascript" defer src="https://woo-2003.github.io/WEB_MAIN_20221022/js/js_search.js"></script>
     <script type="module" defer src="https://woo-2003.github.io/WEB_MAIN_20221022/js/map.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
   
   </head>
-  <body style="background-color: black;">
+  <body style="background-color: black;" onload="checkAuth();">
     <div style="display: flex; justify-content: center;">
       <img src="https://woo-2003.github.io/WEB_MAIN_20221022/image/lollogo.png" width="300" height="100" onmouseover="over(this)" onmouseout="out(this)">
       <h3 style="font-size: 24px; font-weight: bold; font-style: italic; color: white;">
