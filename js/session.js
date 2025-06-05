@@ -1,4 +1,4 @@
-import { encrypt_text, decrypt_text } from './js_crypto.js';
+import { encryptText, decryptText } from './js_crypto.js';
 
 // 세션 만료 시간 설정 (30분)
 const SESSION_TIMEOUT = 30 * 60 * 1000;
@@ -38,9 +38,9 @@ export function checkSession() {
 }
 
 // 세션 데이터 설정
-export function setSessionData(data) {
+export async function setSessionData(data) {
     if (sessionStorage) {
-        const encryptedData = encrypt_text(data);
+        const encryptedData = await encryptText(data);
         sessionStorage.setItem('sessionData', encryptedData);
         startSession();
     } else {
@@ -49,24 +49,24 @@ export function setSessionData(data) {
 }
 
 // 세션 데이터 가져오기
-export function getSessionData() {
+export async function getSessionData() {
     if (sessionStorage) {
         const encryptedData = sessionStorage.getItem('sessionData');
         if (encryptedData) {
-            return decrypt_text(encryptedData);
+            return await decryptText(encryptedData);
         }
     }
     return null;
 }
 
 // 세션 데이터 암호화
-export function encryptSessionData(data) {
-    return encrypt_text(data);
+export async function encryptSessionData(data) {
+    return await encryptText(data);
 }
 
 // 세션 데이터 복호화
-export function decryptSessionData(data) {
-    return decrypt_text(data);
+export async function decryptSessionData(data) {
+    return await decryptText(data);
 }
 
 // 세션 삭제
@@ -131,7 +131,7 @@ export function session_set() { //세션 저장
 
     if (sessionStorage) {
         const objString = JSON.stringify(obj); // 객체 -> JSON 문자열 변환
-        let en_text = encrypt_text(objString); // 암호화
+        let en_text = encryptText(objString); // 암호화
 
         sessionStorage.setItem("Session_Storage_id", id.value);
         sessionStorage.setItem("Session_Storage_object", objString);
@@ -156,7 +156,7 @@ export function session_set() { //세션 저장
 export function session_set2(obj){ //세션 저장(객체)
     if (sessionStorage) {
         const objString = JSON.stringify(obj); // 객체 -> JSON 문자열 변환
-        let en_text = encrypt_text(objString); // 암호화
+        let en_text = encryptText(objString); // 암호화
         sessionStorage.setItem("Session_Storage_join", objString);
     } else {
         alert("세션 스토리지 지원 x");
