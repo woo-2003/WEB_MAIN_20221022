@@ -1,4 +1,4 @@
-import { startSession, checkSession, handleSessionExpiration, setSessionData, getSessionData, encryptSessionData, decryptSessionData, deleteSession } from './session.js';
+import { startSession, checkSession, handleSessionExpiration, setSessionData, getSessionData, deleteSession } from './session.js';
 import { encryptText, decryptText } from './js_crypto.js';
 import { generateToken, verifyToken } from './js_jwt_token.js';
 
@@ -41,17 +41,17 @@ const check_xss = (input) => {
 };
 
 function setCookie(name, value, expiredays) {
-    var date = new Date();
+    const date = new Date();
     date.setDate(date.getDate() + expiredays);
     document.cookie = escape(name) + "=" + escape(value) + ";expires=" + date.toUTCString() + "; path=/";
 }
 
 function getCookie(name) {
-    var cookie = document.cookie;
+    const cookie = document.cookie;
     if (cookie != "") {
-        var cookie_array = cookie.split("; ");
-        for (var index in cookie_array) {
-            var cookie_name = cookie_array[index].split("=");
+        const cookie_array = cookie.split("; ");
+        for (const index in cookie_array) {
+            const cookie_name = cookie_array[index].split("=");
             if (cookie_name[0] == name) {
                 return cookie_name[1];
             }
@@ -109,45 +109,61 @@ const check_input = async () => {
         return false;
     }
 
-    // 아이디 저장 처리
-    if (idsave_check.checked) {
-        setCookie("id", emailValue, 1);
-    } else {
-        setCookie("id", "", 0);
+    try {
+        // 아이디 저장 처리
+        if (idsave_check.checked) {
+            setCookie("id", emailValue, 1);
+        } else {
+            setCookie("id", "", 0);
+        }
+
+        // JWT 토큰 생성
+        const payload = {
+            id: emailValue,
+            exp: Math.floor(Date.now() / 1000) + 3600
+        };
+        const jwtToken = generateToken(payload);
+
+        // 세션 시작 및 데이터 저장
+        startSession();
+        await setSessionData('user', { 
+            email: emailValue,
+            loginTime: Date.now()
+        });
+        localStorage.setItem('jwt_token', jwtToken);
+
+        // 로그인 성공 시 리다이렉트
+        window.location.href = "https://woo-2003.github.io/WEB_MAIN_20221022/login/index_login.html";
+        return false;
+    } catch (error) {
+        console.error('로그인 처리 중 오류:', error);
+        alert('로그인 처리 중 오류가 발생했습니다.');
+        return false;
     }
-
-    // JWT 토큰 생성
-    const payload = {
-        id: emailValue,
-        exp: Math.floor(Date.now() / 1000) + 3600
-    };
-    const jwtToken = generateToken(payload);
-
-    // 세션 시작
-    startSession();
-    setSessionData('user', { email: emailValue });
-    localStorage.setItem('jwt_token', jwtToken);
-
-    // 로그인 성공 시 리다이렉트
-    window.location.href = "https://woo-2003.github.io/WEB_MAIN_20221022/login/index_login.html";
-    return false;
 };
 
-export function init_logined() {
-    if (!checkSession()) {
-        alert('로그인이 필요합니다.');
-        window.location.href = "https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html";
-        return;
-    }
-
+export async function init_logined() {
     try {
-        const sessionData = getSessionData('user');
-        if (sessionData) {
-            const decryptedData = decryptText(sessionData);
-            console.log('복호화된 세션 데이터:', decryptedData);
+        // 세션 체크
+        if (!checkSession()) {
+            alert('로그인이 필요합니다.');
+            window.location.href = "https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html";
+            return;
         }
+
+        // 세션 데이터 확인
+        const sessionData = await getSessionData('user');
+        if (!sessionData) {
+            alert('세션 데이터가 없습니다. 다시 로그인해주세요.');
+            deleteSession();
+            window.location.href = "https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html";
+            return;
+        }
+
+        console.log('로그인된 사용자:', sessionData.email);
     } catch (error) {
-        console.error('세션 데이터 처리 중 오류:', error);
+        console.error('세션 초기화 중 오류:', error);
+        alert('세션 초기화 중 오류가 발생했습니다.');
         deleteSession();
         window.location.href = "https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html";
     }
