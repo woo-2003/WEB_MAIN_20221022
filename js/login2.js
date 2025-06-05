@@ -1,19 +1,23 @@
-import { session_set, session_get, session_check } from './session.js';
-import { encrypt_text, decrypt_text } from './js_crypto.js';
-import { generateJWT, checkAuth } from './js_jwt_token.js';
+import { startSession, checkSession, handleSessionExpiration, setSessionData, getSessionData, encryptSessionData, decryptSessionData } from './session.js';
+import { encryptText, decryptText } from './js_crypto.js';
+import { generateToken, verifyToken } from './js_jwt_token.js';
 
 // window.checkAuth = checkAuth;
 
-function init(){ // 로그인 폼에 쿠키에서 가져온 아이디 입력
-  const emailInput = document.getElementById('typeEmailX');
-  const idsave_check = document.getElementById('idSaveCheck');
-  let get_id = getCookie("id");
+function init() {
+    const emailInput = document.getElementById('typeEmailX');
+    const idSaveCheck = document.getElementById('idSaveCheck');
+    const savedId = localStorage.getItem('savedId');
 
-  if(get_id) {
-    emailInput.value = get_id;
-    idsave_check.checked = true;
-  }
-  session_check(); // 세션 유무 검사
+    if (savedId) {
+        emailInput.value = savedId;
+        idSaveCheck.checked = true;
+    }
+
+    // 세션 상태 확인
+    if (checkSession()) {
+        window.location.href = "https://woo-2003.github.io/WEB_MAIN_20221022/login/index_login.html";
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => 
