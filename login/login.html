@@ -8,40 +8,56 @@
     <meta name="author" content="20221022">
     <meta name="keywords" content="computer">
     <base href="https://woo-2003.github.io/WEB_MAIN_20221022/">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.2.5/purify.min.js" integrity="sha512-/CUtA84sWWqWEBejNrrtWa7Yc4cth3Ome2ymvCKOo9YcZ4sh98tndUy4LutE2xGcAgD4fyz16y+gSyJdGCB5ww==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
-    <script type="module" defer src="https://woo-2003.github.io/WEB_MAIN_20221022/js/login.js"></script>
-    <!-- <script type="text/javascript" defer src="../js/session.js"></script>
-    <script type="text/javascript" defer src="../js/js_crypto.js"></script>
-    <script type="text/javascript" defer src="../js/js_jwt_token.js"></script> -->
     
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js" integrity="sha512-a+SUDuwNzXDvz4XrIcXHuCf089/iJAoN4lmrXJg18XnduKK6YlDHNRalv4yd1N40OKI80tFidF+rqTFKGPoWFQ==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script> -->
+    <!-- 보안 관련 스크립트 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.2.5/purify.min.js" integrity="sha512-/CUtA84sWWqWEBejNrrtWa7Yc4cth3Ome2ymvCKOo9YcZ4sh98tndUy4LutE2xGcAgD4fyz16y+gSyJdGCB5ww==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js" integrity="sha512-a+SUDuwNzXDvz4XrIcXHuCf089/iJAoN4lmrXJg18XnduKK6YlDHNRalv4yd1N40OKI80tFidF+rqTFKGPoWFQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
+    <!-- 모듈 스크립트 -->
+    <script type="module">
+      import { init, check_input } from '../js/login.js';
+      import { session_set, session_get, session_check } from '../js/session.js';
+      import { encrypt_text, decrypt_text } from '../js/js_crypto.js';
+      import { generateJWT, checkAuth } from '../js/js_jwt_token.js';
+      
+      window.init = init;
+      window.check_input = check_input;
+      window.session_set = session_set;
+      window.session_get = session_get;
+      window.session_check = session_check;
+      window.encrypt_text = encrypt_text;
+      window.decrypt_text = decrypt_text;
+      window.generateJWT = generateJWT;
+      window.checkAuth = checkAuth;
+    </script>
+    
+    <script type="module" defer src="../js/login.js"></script>
+    <script type="module" defer src="../js/session.js"></script>
+    <script type="module" defer src="../js/js_crypto.js"></script>
+    <script type="module" defer src="../js/js_jwt_token.js"></script>
+    
     <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://woo-2003.github.io/WEB_MAIN_20221022/css/login.css">
+    <link rel="stylesheet" href="../css/login.css">
   </head>
   
-
-  <body class="text-center">
+  <body class="text-center" onload="init();">
     <section class="vh-100 gradient-custom">
       <div class="container py-5 h-100">
         <div class="row d-flex justify-content-center align-items-center h-100">
           <div class="col-12 col-md-8 col-lg-6 col-xl-5">
             <div class="card bg-dark text-white" style="border-radius: 1rem;">
               <div class="card-body p-5 text-center">
-    
-                <form method="get" action="https://woo-2003.github.io/WEB_MAIN_20221022/login/index_login.html" id="login_form">
-    
+                <form method="post" id="login_form" onsubmit="return check_input();">
                   <h2 class="fw-bold mb-2 text-uppercase">로그인 화면</h2>
                   <p class="text-white-50 mb-5">Please enter your login and password!</p>
-    
-                
-
-                  <div data-mdb-input-init class="form-outline form-white mb-4">
-                    <input type="email" id="typeEmailX" class="form-control form-control-lg" name="id" />
+                  
+                  <div class="form-outline form-white mb-4">
+                    <input type="email" id="typeEmailX" class="form-control form-control-lg" name="id" required />
                     <label class="form-label" for="typeEmailX">Email</label>
                   </div>
     
-                  <div data-mdb-input-init class="form-outline form-white mb-4">
-                    <input type="password" id="typePasswordX" class="form-control form-control-lg" name="password" />
+                  <div class="form-outline form-white mb-4">
+                    <input type="password" id="typePasswordX" class="form-control form-control-lg" name="password" required />
                     <label class="form-label" for="typePasswordX">Password</label>
                   </div>
     
@@ -49,27 +65,22 @@
     
                   <div class="checkbox mb-3">
                     <label>
-                    <input type="checkbox" value="remember-me" id="idSaveCheck"> 아이디 기억
+                      <input type="checkbox" value="remember-me" id="idSaveCheck"> 아이디 기억
                     </label>
                   </div>
 
-                  <button data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-light btn-lg px-5" id="login_btn"  type="button">로그인</button>
-    
+                  <button class="btn btn-outline-light btn-lg px-5" id="login_btn" type="submit">로그인</button>
                 </form>
 
-                  <div class="d-flex justify-content-center text-center mt-4 pt-1">
-                    <a href="#!" class="text-white"><i class="fab fa-facebook-f fa-lg"></i></a>
-                    <a href="#!" class="text-white"><i class="fab fa-twitter fa-lg mx-4 px-2"></i></a>
-                    <a href="#!" class="text-white"><i class="fab fa-google fa-lg"></i></a>
-                  </div>
-    
+                <div class="d-flex justify-content-center text-center mt-4 pt-1">
+                  <a href="#!" class="text-white"><i class="fab fa-facebook-f fa-lg"></i></a>
+                  <a href="#!" class="text-white"><i class="fab fa-twitter fa-lg mx-4 px-2"></i></a>
+                  <a href="#!" class="text-white"><i class="fab fa-google fa-lg"></i></a>
                 </div>
     
                 <div>
-                  <p class="mb-0">계정이 없나요? <a href="https://woo-2003.github.io/WEB_MAIN_20221022/login/join.html" class="text-white-50 fw-bold">회원가입</a>
-                  </p>
+                  <p class="mb-0">계정이 없나요? <a href="join.html" class="text-white-50 fw-bold">회원가입</a></p>
                 </div>
-    
               </div>
             </div>
           </div>
@@ -77,4 +88,4 @@
       </div>
     </section>
   </body>
-  </html>
+</html>
