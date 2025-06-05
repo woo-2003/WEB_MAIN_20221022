@@ -30,7 +30,7 @@ export function session_set() { //세션 저장
             if (sessionStorage.getItem("Session_Storage_id")) {
                 alert("세션이 만료되어 자동 로그아웃됩니다.");
                 session_del();
-                location.href = '../login/login.html';
+                location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html';
             }
         }, SESSION_TIMEOUT);
     } else {
@@ -79,19 +79,19 @@ export function session_check() { //세션 검사
         if (sessionData.expires && currentTime > sessionData.expires) {
             alert("세션이 만료되었습니다. 다시 로그인해주세요.");
             session_del();
-            location.href = '../login/login.html';
+            location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html';
             return;
         }
         
         alert("이미 로그인 되었습니다.");
-        location.href='../login/index_login.html'; // 로그인된 페이지로 이동
+        location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/index_login.html'; // 로그인된 페이지로 이동
     }
 }
 
 export function checkAuth() {
     if (!sessionStorage.getItem("Session_Storage_id")) {
         alert("로그인이 필요합니다.");
-        location.href = '../login/login.html';
+        location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html';
         return;
     }
     
@@ -102,7 +102,7 @@ export function checkAuth() {
     if (sessionData.expires && currentTime > sessionData.expires) {
         alert("세션이 만료되었습니다. 다시 로그인해주세요.");
         session_del();
-        location.href = '../login/login.html';
+        location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html';
         return;
     }
 }
