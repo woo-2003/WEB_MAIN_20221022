@@ -24,14 +24,19 @@ async function createSignature(data, key) {
     return btoa(String.fromCharCode(...new Uint8Array(signature)));
 }
 
-export async function generateJWT(payload) {
+// JWT 토큰 생성
+export async function generateToken(payload) {
     try {
         // 1. 헤더 생성 및 Base64 인코딩
         const header = { alg: "HS256", typ: "JWT" };
         const encodedHeader = btoa(JSON.stringify(header));
         
-        // 2. 페이로드 Base64 인코딩
-        const encodedPayload = btoa(JSON.stringify(payload));
+        // 2. 페이로드에 만료 시간 추가
+        const tokenPayload = {
+            ...payload,
+            exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1시간
+        };
+        const encodedPayload = btoa(JSON.stringify(tokenPayload));
         
         // 3. 서명 생성
         const signature = await createSignature(
@@ -47,7 +52,8 @@ export async function generateJWT(payload) {
     }
 }
 
-async function verifyJWT(token) {
+// JWT 토큰 검증
+export async function verifyToken(token) {
     try {
         // 1. 토큰을 헤더, 페이로드, 서명으로 분할
         const parts = token.split('.');
@@ -78,18 +84,22 @@ async function verifyJWT(token) {
     }
 }
 
-async function isAuthenticated() {
-    const token = localStorage.getItem('jwt_token');
-    if (!token) return false;
-    
-    const payload = await verifyJWT(token);
-    console.log(payload);
-    return !!payload;
-}
-
+// 인증 상태 확인
 export async function checkAuth() {
-    const authenticated = await isAuthenticated();
-    if (authenticated) {
-        alert('정상적으로 토큰이 검증되었습니다.');
+    const token = localStorage.getItem('jwt_token');
+    if (!token) {
+        alert('로그인이 필요합니다.');
+        window.location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html';
+        return false;
     }
+    
+    const payload = await verifyToken(token);
+    if (!payload) {
+        alert('세션이 만료되었습니다. 다시 로그인해주세요.');
+        localStorage.removeItem('jwt_token');
+        window.location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html';
+        return false;
+    }
+    
+    return true;
 }
