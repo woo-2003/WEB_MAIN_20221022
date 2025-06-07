@@ -108,10 +108,10 @@ async function getEncryptionKey() {
 }
 
 // 텍스트 암호화
-export async function encryptText(text) {
+export function encryptText(text) {
   try {
     if (!text) return '';
-    return await encodeByAES256(text);
+    return base64Encode(text);
   } catch (error) {
     console.error('텍스트 암호화 중 오류:', error);
     return '';
@@ -119,10 +119,10 @@ export async function encryptText(text) {
 }
 
 // 텍스트 복호화
-export async function decryptText(encryptedText) {
+export function decryptText(encryptedText) {
   try {
     if (!encryptedText) return '';
-    return await decodeByAES256(encryptedText);
+    return base64Decode(encryptedText);
   } catch (error) {
     console.error('텍스트 복호화 중 오류:', error);
     return '';

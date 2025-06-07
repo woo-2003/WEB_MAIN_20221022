@@ -95,7 +95,7 @@ export async function check_input() {
     }
     
     // 로그인 성공 시 메인 페이지로 이동
-    window.location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/index_login.html';
+    window.location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/index.html';
     
   } catch (error) {
     console.error('로그인 처리 중 오류:', error);
@@ -127,7 +127,7 @@ export async function init_logined() {
 export function init() {
   try {
     if (checkSession()) {
-      window.location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/index_login.html';
+      window.location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/index.html';
       return;
     }
     

@@ -117,20 +117,25 @@ export function getUserFromToken(token) {
 
 // 인증 상태 확인
 export async function checkAuth() {
+  try {
     const token = localStorage.getItem('jwt_token');
     if (!token) {
-        alert('로그인이 필요합니다.');
-        window.location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html';
-        return false;
+      alert('로그인이 필요합니다.');
+      window.location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html';
+      return false;
     }
     
     const payload = await verifyToken(token);
     if (!payload) {
-        alert('세션이 만료되었습니다. 다시 로그인해주세요.');
-        localStorage.removeItem('jwt_token');
-        window.location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html';
-        return false;
+      alert('세션이 만료되었습니다. 다시 로그인해주세요.');
+      localStorage.removeItem('jwt_token');
+      window.location.href = 'https://woo-2003.github.io/WEB_MAIN_20221022/login/login.html';
+      return false;
     }
     
     return true;
+  } catch (error) {
+    console.error('인증 상태 확인 중 오류:', error);
+    return false;
+  }
 }

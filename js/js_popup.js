@@ -1,18 +1,19 @@
-window.pop_up = function() {
-  var cookieCheck = getCookie("popupYN");
-  if (cookieCheck != "N") {
+// 팝업 관련 상수
+const CLOSE_DELAY = 50; // 50초로 설정
+
+// 타이머 관련 변수
+let close_time;
+let close_time2 = CLOSE_DELAY;
+
+// 팝업 창 열기
+export function pop_up() {
+  const cookieCheck = getCookie("popupYN");
+  if (cookieCheck !== "N") {
     window.open("https://woo-2003.github.io/WEB_MAIN_20221022/popup/popup.html", 
                 "팝업테스트", 
                 "width=400, height=500, top=10, left=10");
   }
 }
-
-// (../)의 뜻 = 한 파일 밖에 나가서 불러온다
-
-// 타이머 관련 변수
-let close_time;
-const CLOSE_DELAY = 50; // 50초로 설정
-let close_time2 = CLOSE_DELAY;
 
 // 타이머 초기화
 function initTimer() {
@@ -21,8 +22,8 @@ function initTimer() {
 }
 
 // 타이머 표시
-window.show_time = function() {
-  let divClock = document.getElementById('Time');
+export function show_time() {
+  const divClock = document.getElementById('Time');
   if (divClock) {
     divClock.innerText = `자동 닫힘까지 ${close_time2}초`;
     close_time2--;
@@ -46,7 +47,7 @@ function close_window() {
 function setCookie(name, value, expiredays) {
   const date = new Date();
   date.setDate(date.getDate() + expiredays);
-  const cookieValue = `${escape(name)}=${escape(value)}; expires=${date.toUTCString()}; path=/; SameSite=Lax`;
+  const cookieValue = `${encodeURIComponent(name)}=${encodeURIComponent(value)}; expires=${date.toUTCString()}; path=/; SameSite=Lax`;
   document.cookie = cookieValue;
   console.log("쿠키가 설정되었습니다:", cookieValue);
 }
@@ -60,7 +61,7 @@ function getCookie(name) {
     for (const cookieItem of cookieArray) {
       const [cookieName, cookieValue] = cookieItem.split("=");
       if (cookieName === name) {
-        return cookieValue;
+        return decodeURIComponent(cookieValue);
       }
     }
   }
@@ -68,7 +69,7 @@ function getCookie(name) {
 }
 
 // 시계 표시
-function show_clock() {
+export function show_clock() {
   const divClock = document.getElementById('divClock');
   if (!divClock) return;
 
@@ -96,16 +97,16 @@ function show_clock() {
 }
 
 // 이미지 호버 효과
-function over(obj) {
+export function over(obj) {
   obj.src = "https://woo-2003.github.io/WEB_MAIN_20221022/image/lollogo.png";
 }
 
-function out(obj) {
+export function out(obj) {
   obj.src = "https://woo-2003.github.io/WEB_MAIN_20221022/image/popuplollogo.png";
 }
 
 // 팝업 닫기 및 쿠키 설정
-function closePopup() {
+export function closePopup() {
   const checkbox = document.getElementById('check_popup');
   if (checkbox && checkbox.checked) {
     setCookie("popupYN", "N", 1);
@@ -113,7 +114,9 @@ function closePopup() {
     window.close();
   }
 }
-  
+
+// (../)의 뜻 = 한 파일 밖에 나가서 불러온다
+
 // const over = (obj) => {
 //   obj.src = "image/LOGO.png";
 // };
