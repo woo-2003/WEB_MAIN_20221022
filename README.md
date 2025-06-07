@@ -1,3 +1,7 @@
+ps. 최종구현 후 마지막날에 더 완벽히 구현하고싶어서 이것저것 건들였다가 조금 이상해졌습니다..
+
+
+
 **1. 전체 실습과정 완료**
 • 기본 기능 동작.
 
@@ -215,6 +219,83 @@
 
 **4. 홈페이지 내용 수정**
 • 주제, 메뉴, 링크, 디자인 등
+  - 주제 및 컨셉:
+  -  G-SHOCK과 리그 오브 레전드(LOL)의 콜라보레이션 테마
+ - 외부 링크:
+  - 리그 오브 레전드 공식 웹사이트
+  - 게임 클라이언트 다운로드
+  - 모바일 버전 다운로드
+  - 패치 노트
+  - 고객지원
+  - 로고 이미지 (300x100)
+  - 반응형 네비게이션 바
+  - 테이블 디자인
+  - 소셜 미디어 링크
 
 **5. 소스 코드 정리**
 • 파일명, 들여쓰기, 주석 표시
+- HTML 파일들:
+index.html: 메인 페이지
+웹사이트의 첫 진입점
+기본 레이아웃과 네비게이션 제공
+로그인/회원가입 링크 포함
+- login/index_login.html: 로그인 후 메인 페이지
+로그인된 사용자를 위한 메인 페이지
+인기 캐릭터 정보 표시
+사용자 프로필 및 세션 관리
+- login/login.html: 로그인 페이지
+사용자 인증 인터페이스
+로그인 폼 제공
+회원가입 링크
+- popup/popup.html: 팝업 창
+공지사항이나 알림을 위한 팝업
+자동 팝업 제어 기능
+- JavaScript 파일들:
+js/login2.js: 로그인 처리
+Apply to js_popup.js
+- js/session.js: 세션 관리
+Apply to js_popup.js
+- js/js_crypto.js: 암호화 처리
+Apply to js_popup.js
+- js/js_jwt_token.js: JWT 토큰 관리
+Apply to js_popup.js
+- js/js_popup.js: 팝업 기능
+Apply to js_popup.js
+- CSS 파일들:
+css/style.css: 메인 스타일시트
+Apply to js_popup.js
+css/login.css: 로그인 페이지 스타일
+Apply to js_popup.js
+- 이미지 파일들:
+image/logo.png: 웹사이트 로고
+image/lol_main.jpg: 메인 배너 이미지
+image/characters/: 캐릭터 이미지들
+image/popup/: 팝업 관련 이미지들
+README.md:
+프로젝트 설명
+설치 및 실행 방법
+기술 스택 정보
+개발자 정보
+모듈 구조:
+Apply to js_popup.js
+- 주요 기능별 파일 매핑:
+인증 시스템:
+login.html + login2.js + js_jwt_token.js
+- 세션 관리:
+session.js + js_crypto.js
+UI/UX:
+style.css + login.css
+- 팝업 시스템:
+popup.html + js_popup.js
+- 보안 관련 파일들:
+js_crypto.js: 데이터 암호화
+js_jwt_token.js: 인증 토큰
+session.js: 세션 보안
+- 사용자 인터페이스 파일들:
+index.html: 메인 UI
+index_login.html: 로그인 후 UI
+popup.html: 팝업 UI
+- 리소스 파일들:
+image/: 이미지 리소스
+css/: 스타일 리소스
+js/: 스크립트 리소스
