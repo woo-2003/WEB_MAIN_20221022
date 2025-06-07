@@ -27,11 +27,14 @@
       import { checkAuth } from 'https://woo-2003.github.io/WEB_MAIN_20221022/js/session.js';
       import { init_logined } from 'https://woo-2003.github.io/WEB_MAIN_20221022/js/login2.js';
       import { initSearch } from 'https://woo-2003.github.io/WEB_MAIN_20221022/js/js_search.js';
+      import { over, out } from 'https://woo-2003.github.io/WEB_MAIN_20221022/js/js_popup.js';
       
       // 전역 스코프에 함수 할당
       window.checkAuth = checkAuth;
       window.init_logined = init_logined;
       window.initSearch = initSearch;
+      window.over = over;
+      window.out = out;
       
       // 페이지 로드 시 초기화
       document.addEventListener('DOMContentLoaded', () => {

@@ -165,11 +165,21 @@ export async function session_get_join() {
 
 // 세션 체크
 export function checkSession() {
-  if (checkSessionExpired()) {
-    handleSessionExpiration();
+  try {
+    const sessionData = sessionStorage.getItem('session_data');
+    if (!sessionData) return false;
+
+    const decryptedData = JSON.parse(decryptText(sessionData));
+    if (checkSessionExpired()) {
+      handleSessionExpiration();
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('세션 체크 중 오류:', error);
     return false;
   }
-  return true;
 }
 
 // 페이지 로드 시 세션 체크 시작
