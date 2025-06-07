@@ -7,7 +7,6 @@
     <meta name="author" content="20221022">
     <meta name="keywords" content="computer">
     <base href="https://woo-2003.github.io/WEB_MAIN_20221022/">
-    <script type="module" src="https://woo-2003.github.io/WEB_MAIN_20221022/js/js_popup.js"></script>
     <style>
       .clock {
         font-size: 1.5em;
@@ -39,8 +38,7 @@
         <img src="https://woo-2003.github.io/WEB_MAIN_20221022/image/popuplollogo.png" 
              width="300" height="100" 
              class="logo"
-             onmouseover="window.over(this)" 
-             onmouseout="window.out(this)">
+             id="popupLogo">
       </div>
       <h1>팝업 테스트</h1>
       <div id="divClock" class="clock"></div>
@@ -51,16 +49,20 @@
       </div>
     </div>
     <script type="module">
-      import { show_clock, show_time, closePopup } from '../js/js_popup.js';
-      
-      // 전역 함수로 노출
-      window.over = (obj) => obj.src = "https://woo-2003.github.io/WEB_MAIN_20221022/image/lollogo.png";
-      window.out = (obj) => obj.src = "https://woo-2003.github.io/WEB_MAIN_20221022/image/popuplollogo.png";
+      import { show_clock, show_time, closePopup, over, out } from '../js/js_popup.js';
       
       // 초기화
       document.addEventListener('DOMContentLoaded', () => {
+        // 시계와 타이머 시작
         show_clock();
         show_time();
+        
+        // 로고 이미지 호버 이벤트
+        const logo = document.getElementById('popupLogo');
+        if (logo) {
+          logo.addEventListener('mouseover', () => over(logo));
+          logo.addEventListener('mouseout', () => out(logo));
+        }
         
         // 체크박스 이벤트 리스너
         const checkbox = document.getElementById('check_popup');

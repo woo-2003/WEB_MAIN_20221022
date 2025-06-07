@@ -45,8 +45,8 @@ export function checkSessionExpired() {
     const sessionData = sessionStorage.getItem('session_data');
     if (!sessionData) return true;
 
-    const lastActivity = JSON.parse(decryptText(sessionData)).lastActivity;
-    return Date.now() - lastActivity > SESSION_TIMEOUT;
+    const decryptedData = JSON.parse(decryptText(sessionData));
+    return Date.now() - decryptedData.lastActivity > SESSION_TIMEOUT;
   } catch (error) {
     console.error('세션 만료 체크 중 오류:', error);
     return true;
@@ -90,15 +90,14 @@ export async function getSessionData(key) {
     const sessionData = sessionStorage.getItem('session_data');
     if (!sessionData) return null;
 
-    const decryptedData = await decryptText(sessionData);
-    const data = JSON.parse(decryptedData);
+    const decryptedData = JSON.parse(decryptText(sessionData));
 
     if (checkSessionExpired()) {
       handleSessionExpiration();
       return null;
     }
 
-    return key ? data[key] : data;
+    return key ? decryptedData[key] : decryptedData;
   } catch (error) {
     console.error('세션 데이터 조회 중 오류:', error);
     return null;
@@ -166,22 +165,20 @@ export async function session_get_join() {
 
 // 세션 체크
 export function checkSession() {
-    if (checkSessionExpired()) {
-        handleSessionExpiration();
-        return false;
-    }
-    return true;
+  if (checkSessionExpired()) {
+    handleSessionExpiration();
+    return false;
+  }
+  return true;
 }
 
 // 페이지 로드 시 세션 체크 시작
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        startSession();
-        setInterval(checkSession, 60000); // 1분마다 체크
-    });
+  document.addEventListener('DOMContentLoaded', () => {
+    setInterval(checkSession, 60000); // 1분마다 체크
+  });
 } else {
-    startSession();
-    setInterval(checkSession, 60000);
+  setInterval(checkSession, 60000);
 }
 
 export function session_set() { //세션 저장
